@@ -126,7 +126,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin}>
               <CardHeader className="text-center pb-2">
                 <CardTitle className="text-2xl font-bold tracking-tight text-slate-800">
-                  Selamat Datang! 👋
+                  Selamat Datang!
                 </CardTitle>
                 <CardDescription className="text-slate-500 text-sm">
                   Masuk ke akun Anda untuk melanjutkan
