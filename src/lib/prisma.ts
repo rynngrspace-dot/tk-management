@@ -1,5 +1,5 @@
 // @ts-ignore - Next.js resolves .ts imports at build time
-import { PrismaClient } from "@/generated/prisma/client.ts"
+import { PrismaClient } from "@/generated/prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
 
 const globalForPrisma = globalThis as any
