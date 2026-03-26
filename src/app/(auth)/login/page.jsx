@@ -76,34 +76,34 @@ export default function LoginPage() {
             <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-white/80 text-sm font-medium">Sistem Manajemen TK</span>
+            <span className="text-white/80 text-sm font-medium">Sistem Manajemen TK Al Islah</span>
           </div>
         </div>
 
-        <div className="relative z-10 space-y-6">
-          <h1 className="text-5xl font-extrabold text-white leading-tight">
-            Tumbuh Kembang<br />
-            <span className="text-indigo-200">Lebih Terukur</span>
-          </h1>
-          <p className="text-indigo-200 text-lg max-w-md leading-relaxed">
-            Platform penilaian perkembangan anak berbasis SAW untuk membantu guru dan admin TK mengelola data siswa dengan lebih efisien.
-          </p>
-          <div className="flex gap-6 pt-4">
-            {[
-              { value: "150+", label: "Siswa Aktif" },
-              { value: "12", label: "Guru Terlatih" },
-              { value: "6", label: "Kelompok" },
-            ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <div className="text-xs text-indigo-200 mt-1">{stat.label}</div>
-              </div>
-            ))}
+        <div className="relative z-10 space-y-8">
+          <div className="space-y-3">
+            <h1 className="text-3xl lg:text-5xl font-black text-white leading-tight tracking-tighter uppercase">
+              TK Al Islah
+              <span className="text-indigo-200 text-xl lg:text-2xl font-bold block mt-2 opacity-90 tracking-normal capitalize">Membangun Karakter Anak</span>
+            </h1>
+          </div>
+          
+          <div className="space-y-6 max-w-md">
+            <p className="text-indigo-100 text-sm lg:text-base font-medium leading-relaxed border-l-2 border-indigo-400/30 pl-4">
+              Platform manajemen pendidikan yang berfokus pada melatih <span className="text-white font-bold decoration-indigo-300 underline underline-offset-4">motorik</span>, mengembangkan <span className="text-white font-bold decoration-indigo-300 underline underline-offset-4">kreativitas</span>, bahasa, sains dan numerasi anak.
+            </p>
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl inline-block shadow-xl shadow-indigo-900/20">
+               <div className="text-xs lg:text-sm font-bold text-white flex items-center gap-2.5">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)] animate-pulse" />
+                  Pilar Karakter & Praktik Ibadah
+               </div>
+               <p className="text-[10px] lg:text-xs text-indigo-100 mt-1.5 ml-4.5 opacity-80 leading-snug">Mengenal Nilai Agama dan Moral sejak dini.</p>
+            </div>
           </div>
         </div>
 
         <div className="relative z-10">
-          <p className="text-indigo-300 text-xs">© 2026 TK Pintar. Hak Cipta Dilindungi.</p>
+          <p className="text-indigo-300 text-xs">© 2026 TK Al Islah. Hak Cipta Dilindungi.</p>
         </div>
       </div>
 
@@ -119,7 +119,7 @@ export default function LoginPage() {
             <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
               <Sparkles className="w-7 h-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold gradient-text">Manajemen TK</h1>
+            <h1 className="text-2xl font-bold gradient-text">TK Al Islah</h1>
           </div>
 
           <Card className="shadow-xl shadow-indigo-500/5 border-0 bg-white/80 backdrop-blur-sm">
