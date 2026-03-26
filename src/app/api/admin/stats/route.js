@@ -4,8 +4,11 @@ import { getSession } from "@/lib/auth";
 
 export async function GET(req) {
   try {
-    const session = await getSession(req);
+    const session = await getSession();
+    console.log("Stats API Session:", session);
+    
     if (!session) {
+      console.log("Stats API: No session found");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -15,13 +18,19 @@ export async function GET(req) {
 
     // Security: Teachers can only see their own class stats
     const targetClassId = role === "teacher" ? session.classId : classId;
+    console.log("Stats API Role:", role, "TargetClassId:", targetClassId);
 
+    // If teacher has no class, don't throw 400, just return empty stats
     if (role === "teacher" && !targetClassId) {
-      return NextResponse.json({ error: "Teacher has no assigned class" }, { status: 400 });
+      return NextResponse.json({
+        stats: { students: 0, teachers: 0, classes: 0, className: "Belum Ditugaskan", progressThisMonth: 0 },
+        activities: [],
+        warning: "Guru belum memiliki Kelompok/Kelas yang ditugaskan."
+      });
     }
 
-    // 1. Stats Counts
-    const studentFilter = targetClassId ? { classId: targetClassId } : {};
+    // Ensure targetClassId is string for filtering
+    const studentFilter = targetClassId ? { classId: String(targetClassId) } : {};
     
     // Monthly Progress Count
     const now = new Date();
@@ -34,7 +43,7 @@ export async function GET(req) {
       prisma.class.count(),
       prisma.weeklyProgress.count({ 
         where: { 
-          ...studentFilter,
+          student: studentFilter,
           month: currentMonth,
           year: currentYear
         } 

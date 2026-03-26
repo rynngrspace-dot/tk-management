@@ -6,19 +6,25 @@ import { Users, ListChecks, Calendar, Sparkles, BookOpen, Clock, AlertCircle } f
 export default function TeacherDashboardPage() {
   const [data, setData] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [teacherName, setTeacherName] = useState("")
 
   useEffect(() => {
     setTeacherName(localStorage.getItem("userName") || "Guru")
     
     fetch("/api/admin/stats")
-      .then(res => res.json())
+      .then(async res => {
+        const json = await res.json()
+        if (!res.ok) throw new Error(json.error || "Gagal mengambil statistik")
+        return json
+      })
       .then(json => {
         setData(json)
         setIsLoading(false)
       })
       .catch(err => {
         console.error("Teacher Dashboard fetch error:", err)
+        setError(err.message)
         setIsLoading(false)
       })
   }, [])
@@ -53,6 +59,14 @@ export default function TeacherDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Error View */}
+      {error && (
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl flex items-center gap-3">
+           <AlertCircle className="w-5 h-5" />
+           <p className="text-sm font-bold">Error: {error}</p>
+        </div>
+      )}
 
       {/* Stat Cards */}
       <div className="grid gap-6 md:grid-cols-3">
