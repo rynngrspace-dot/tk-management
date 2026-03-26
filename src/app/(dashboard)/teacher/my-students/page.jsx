@@ -2,35 +2,62 @@
 import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, Users } from "lucide-react"
-import { getMockData } from "@/lib/mock-data"
+import { Search, Users, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 export default function TeacherMyStudentsPage() {
   const [allStudents, setAllStudents] = useState([])
-  const [myStudents, setMyStudents] = useState([])
   const [classes, setClasses] = useState([])
-  const [className, setClassName] = useState("")
-  const [myClassId, setMyClassId] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
+  
+  const [myClassId, setMyClassId] = useState("A") // Hardcoded for Demo (Siti = A)
+  const [className, setClassName] = useState("Kelompok A")
+  
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedTab, setSelectedTab] = useState("mine")
 
   useEffect(() => {
-    const name = localStorage.getItem("userName") || "Guru"
-    const data = getMockData()
-    setClasses(data.classes)
-    setAllStudents(data.students)
-
-    const teacher = data.teachers.find(t => t.name === name) || data.teachers[0]
-
-    if (teacher) {
-      const cls = data.classes.find(c => c.id === teacher.classId)
-      setClassName(cls ? cls.name : "Tanpa Kelompok")
-      setMyClassId(teacher.classId)
-
-      const teacherStudents = data.students.filter(s => s.classId === teacher.classId)
-      setMyStudents(teacherStudents)
+    const fetchData = async () => {
+      try {
+        setIsLoading(true)
+        const [resStudents, resClasses] = await Promise.all([
+          fetch("/api/students"),
+          fetch("/api/classes")
+        ])
+        
+        if (!resStudents.ok || !resClasses.ok) throw new Error("Gagal mengambil data")
+        
+        const dataStudents = await resStudents.json()
+        const dataClasses = await resClasses.json()
+        
+        setAllStudents(dataStudents)
+        setClasses(dataClasses)
+        
+        // Determine teacher's class based on name for now
+        const userName = localStorage.getItem("userName") || ""
+        let assignedClassId = "A"
+        if (userName.toLowerCase().includes("budi")) {
+          assignedClassId = "B"
+        }
+        
+        setMyClassId(assignedClassId)
+        const assignedClass = dataClasses.find(c => c.id === assignedClassId)
+        if (assignedClass) {
+          setClassName(assignedClass.name)
+        }
+        
+      } catch (error) {
+        toast.error(error.message)
+        console.error(error)
+      } finally {
+        setIsLoading(false)
+      }
     }
+    
+    fetchData()
   }, [])
+
+  const myStudents = allStudents.filter(s => s.classId === myClassId)
 
   const displayStudents = selectedTab === "mine"
     ? myStudents
@@ -47,6 +74,14 @@ export default function TeacherMyStudentsPage() {
     if (tab === "mine") return myStudents.length
     if (tab === "all") return allStudents.length
     return allStudents.filter(s => s.classId === tab).length
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      </div>
+    )
   }
 
   return (
@@ -171,8 +206,8 @@ export default function TeacherMyStudentsPage() {
             </TableBody>
           </Table>
         </div>
-        <div className="text-xs text-slate-400 pt-1">
-          Menampilkan {filteredStudents.length} dari {displayStudents.length} siswa
+        <div className="flex justify-between items-center text-xs text-slate-400 pt-1">
+          <span>Menampilkan {filteredStudents.length} dari {displayStudents.length} siswa</span>
         </div>
       </div>
     </div>

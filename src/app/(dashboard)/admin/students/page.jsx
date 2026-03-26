@@ -6,22 +6,45 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { Plus, Pencil, Trash2, Search, Users } from "lucide-react"
-import { getMockData } from "@/lib/mock-data"
+import { Plus, Pencil, Trash2, Search, Users, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState([])
   const [classes, setClasses] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedTab, setSelectedTab] = useState("all")
+  
   const [isAddOpen, setIsAddOpen] = useState(false)
-  const [formData, setFormData] = useState({ name: "", nis: "", classId: "" })
+  const [formData, setFormData] = useState({ id: null, name: "", nis: "", classId: "" })
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true)
+      const [resStudents, resClasses] = await Promise.all([
+        fetch("/api/students"),
+        fetch("/api/classes")
+      ])
+      
+      if (!resStudents.ok || !resClasses.ok) throw new Error("Failed to fetch")
+      
+      const dataStudents = await resStudents.json()
+      const dataClasses = await resClasses.json()
+      
+      setStudents(dataStudents)
+      setClasses(dataClasses)
+    } catch (error) {
+      toast.error("Gagal memuat data dari server")
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const data = getMockData()
-    setStudents(data.students)
-    setClasses(data.classes)
+    fetchData()
   }, [])
 
   const filteredStudents = students
@@ -31,26 +54,77 @@ export default function AdminStudentsPage() {
       s.nis.includes(searchTerm)
     )
 
-  const handleSave = () => {
+  const handleOpenAdd = () => {
+    setFormData({ id: null, name: "", nis: "", classId: "" })
+    setIsAddOpen(true)
+  }
+
+  const handleOpenEdit = (student) => {
+    setFormData({ id: student.id, name: student.name, nis: student.nis, classId: student.classId })
+    setIsAddOpen(true)
+  }
+
+  const handleSave = async () => {
     if (!formData.name || !formData.nis || !formData.classId) {
       toast.error("Semua field harus diisi!")
       return
     }
-    const newStudent = { ...formData, id: Date.now() }
-    setStudents([...students, newStudent])
-    setIsAddOpen(false)
-    setFormData({ name: "", nis: "", classId: "" })
-    toast.success("Siswa berhasil ditambahkan")
+    
+    setIsSaving(true)
+    try {
+      const url = formData.id ? `/api/students/${formData.id}` : "/api/students"
+      const method = formData.id ? "PUT" : "POST"
+      
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          nis: formData.nis,
+          classId: formData.classId
+        })
+      })
+      
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Gagal menyimpan data")
+      
+      toast.success(formData.id ? "Siswa berhasil diperbarui" : "Siswa berhasil ditambahkan")
+      setIsAddOpen(false)
+      fetchData() // Refresh data
+    } catch (error) {
+      toast.error(error.message)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
-  const handleDelete = (id) => {
-    setStudents(students.filter(s => s.id !== id))
-    toast.success("Siswa berhasil dihapus")
+  const handleDelete = async (id) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus siswa ini?")) return
+    
+    try {
+      const res = await fetch(`/api/students/${id}`, { method: "DELETE" })
+      const data = await res.json()
+      
+      if (!res.ok) throw new Error(data.error || "Gagal menghapus data")
+      
+      toast.success("Siswa berhasil dihapus")
+      fetchData() // Refresh data
+    } catch (error) {
+      toast.error(error.message)
+    }
   }
 
   const getTabCount = (classId) => {
     if (classId === "all") return students.length
     return students.filter(s => s.classId === classId).length
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      </div>
+    )
   }
 
   return (
@@ -68,13 +142,13 @@ export default function AdminStudentsPage() {
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
-            <Button className="mt-4 sm:mt-0 gradient-primary text-white rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200">
+            <Button onClick={handleOpenAdd} className="mt-4 sm:mt-0 gradient-primary text-white rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200">
               <Plus className="w-4 h-4 mr-2" /> Tambah Siswa
             </Button>
           </DialogTrigger>
           <DialogContent className="rounded-2xl">
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold">Tambah Siswa Baru</DialogTitle>
+              <DialogTitle className="text-lg font-bold">{formData.id ? "Edit Siswa" : "Tambah Siswa Baru"}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
@@ -100,8 +174,11 @@ export default function AdminStudentsPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddOpen(false)} className="rounded-xl">Batal</Button>
-              <Button className="gradient-primary text-white rounded-xl" onClick={handleSave}>Simpan</Button>
+              <Button variant="outline" onClick={() => setIsAddOpen(false)} className="rounded-xl" disabled={isSaving}>Batal</Button>
+              <Button className="gradient-primary text-white rounded-xl" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                Simpan
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -193,7 +270,7 @@ export default function AdminStudentsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => toast.info("Fitur Edit dipanggil")}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => handleOpenEdit(student)}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
                           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50" onClick={() => handleDelete(student.id)}>

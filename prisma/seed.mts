@@ -36,6 +36,42 @@ async function main() {
   })
   console.log(`✅ Guru: ${teacher.email}`)
 
+  // Seed Classes
+  const classA = await prisma.class.upsert({
+    where: { id: "A" },
+    update: {},
+    create: {
+      id: "A",
+      name: "Kelompok A (Usia 4-5 Tahun)",
+    },
+  })
+  const classB = await prisma.class.upsert({
+    where: { id: "B" },
+    update: {},
+    create: {
+      id: "B",
+      name: "Kelompok B (Usia 5-6 Tahun)",
+    },
+  })
+  console.log(`✅ Classes: ${classA.name}, ${classB.name}`)
+
+  // Seed Students
+  const studentsToSeed = [
+    { nis: "1001", name: "Ahmad Rizky", classId: "A" },
+    { nis: "1002", name: "Bunga Pertiwi", classId: "A" },
+    { nis: "1003", name: "Cahyo Wijaya", classId: "B" },
+    { nis: "1004", name: "Dina Amelia", classId: "B" }
+  ]
+
+  for (const s of studentsToSeed) {
+    await prisma.student.upsert({
+      where: { nis: s.nis },
+      update: {},
+      create: s,
+    })
+  }
+  console.log(`✅ Seeded ${studentsToSeed.length} students`)
+
   console.log("🎉 Seeding selesai!")
 }
 
