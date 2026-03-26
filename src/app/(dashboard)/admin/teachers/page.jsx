@@ -150,10 +150,8 @@ export default function AdminTeachersPage() {
           </div>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={handleOpenAdd} className="mt-4 sm:mt-0 gradient-primary text-white rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200">
-              <Plus className="w-4 h-4 mr-2" /> Tambah Guru
-            </Button>
+          <DialogTrigger render={<Button onClick={handleOpenAdd} className="mt-4 sm:mt-0 gradient-primary text-white rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200" />}>
+            <Plus className="w-4 h-4 mr-2" /> Tambah Guru
           </DialogTrigger>
           <DialogContent className="rounded-2xl">
             <DialogHeader>

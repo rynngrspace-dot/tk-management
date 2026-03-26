@@ -7,7 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, Pencil, Trash2, Search, Users, Loader2, Eye, Calendar, User, Phone, MapPin, HeartPulse } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Plus, Pencil, Trash2, Search, Users, Loader2, Eye, Calendar, User, Phone, MapPin, HeartPulse, ShieldCheck, FileText, BadgeInfo } from "lucide-react"
 import { toast } from "sonner"
 
 export default function AdminStudentsPage() {
@@ -180,105 +181,129 @@ export default function AdminStudentsPage() {
           </div>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={handleOpenAdd} className="mt-4 sm:mt-0 gradient-primary text-white rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200">
-              <Plus className="w-4 h-4 mr-2" /> Tambah Siswa
-            </Button>
+          <DialogTrigger render={<Button onClick={handleOpenAdd} className="mt-4 sm:mt-0 gradient-primary text-white rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200" />}>
+            <Plus className="w-4 h-4 mr-2" /> Tambah Siswa
           </DialogTrigger>
-          <DialogContent className="rounded-2xl max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
-            <DialogHeader className="px-6 py-4 border-b border-slate-100 bg-white z-10">
-              <DialogTitle className="text-lg font-bold">{formData.id ? "Edit Siswa" : "Tambah Siswa Baru"}</DialogTitle>
+          <DialogContent className="rounded-3xl sm:max-w-2xl md:max-w-3xl w-[95vw] sm:w-full overflow-hidden shadow-2xl p-0 border-0">
+            <DialogHeader className="px-5 sm:px-8 py-4 sm:py-5 border-b border-indigo-100 bg-linear-to-r from-indigo-50/50 to-white">
+              <DialogTitle className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                 <BadgeInfo className="w-5 h-5 text-indigo-500" />
+                 {formData.id ? "Edit Data Siswa" : "Tambah Siswa Baru"}
+              </DialogTitle>
             </DialogHeader>
-            <div className="p-6 overflow-y-auto space-y-6">
+            <div className="bg-slate-50/30 flex flex-col max-h-[70vh]">
               
-              {/* Seksi Akademik */}
-              <div>
-                <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2"><Users className="w-4 h-4 text-indigo-500"/> Informasi Akademik</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Nomor Induk Siswa (NIS) <span className="text-rose-500">*</span></Label>
-                    <Input value={formData.nis} onChange={e => setFormData({...formData, nis: e.target.value})} placeholder="Masukkan NIS" className="rounded-xl" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Kelompok / Kelas <span className="text-rose-500">*</span></Label>
-                    <Select value={formData.classId} onValueChange={v => setFormData({...formData, classId: v})}>
-                      <SelectTrigger className="rounded-xl">
-                        <SelectValue placeholder="Pilih Kelompok" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {classes.map(c => (
-                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <Tabs defaultValue="akademik" className="w-full flex flex-col h-full relative">
+                <div className="px-4 sm:px-8 pt-4 sm:pt-6 pb-4 shrink-0 bg-slate-50/80 sticky top-0 z-20 backdrop-blur-lg border-b border-indigo-50/50">
+                  <TabsList className="grid w-full grid-cols-2 rounded-2xl bg-white/60 p-1.5 h-auto shadow-sm ring-1 ring-slate-200/50">
+                    <TabsTrigger value="akademik" className="rounded-xl py-2.5 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-indigo-100 transition-all text-xs sm:text-sm font-bold cursor-pointer whitespace-nowrap">
+                      <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                      <span className="hidden sm:inline">Data Akademik & Profil</span>
+                      <span className="sm:hidden">Akademik</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="keluarga" className="rounded-xl py-2.5 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-emerald-100 transition-all text-xs sm:text-sm font-bold cursor-pointer whitespace-nowrap">
+                      <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                      <span className="hidden sm:inline">Data Keluarga & Medis</span>
+                      <span className="sm:hidden">Keluarga</span>
+                    </TabsTrigger>
+                  </TabsList>
                 </div>
-              </div>
 
-              {/* Seksi Profil Anak */}
-              <div className="pt-2 border-t border-slate-100">
-                 <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2"><User className="w-4 h-4 text-blue-500"/> Profil Anak</h3>
-                 <div className="space-y-4">
-                   <div className="space-y-2">
-                    <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Nama Lengkap <span className="text-rose-500">*</span></Label>
-                    <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Masukkan Nama Lengkap Sesuai Akta" className="rounded-xl" />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Jenis Kelamin</Label>
-                      <Select value={formData.gender} onValueChange={v => setFormData({...formData, gender: v})}>
-                        <SelectTrigger className="rounded-xl">
-                          <SelectValue placeholder="Pilih Gender" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="L">Laki-laki</SelectItem>
-                          <SelectItem value="P">Perempuan</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Tanggal Lahir</Label>
-                      <Input type="date" value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})} className="rounded-xl" />
+                <div className="px-4 sm:px-8 pt-4 pb-8 overflow-y-auto flex-1">
+                {/* Tab: Data Akademik */}
+                <TabsContent value="akademik" className="space-y-6 mt-0">
+                  <div className="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 space-y-4 sm:space-y-5">
+                    <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2 mb-4 pb-2 border-b border-slate-50"><FileText className="w-4 h-4 text-indigo-400"/> Info Penempatan & Akademik</h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Nomor Induk Siswa (NIS) <span className="text-rose-500">*</span></Label>
+                        <Input value={formData.nis} onChange={e => setFormData({...formData, nis: e.target.value})} placeholder="Masukkan NIS" className="rounded-xl h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kelompok / Kelas <span className="text-rose-500">*</span></Label>
+                        <Select value={formData.classId} onValueChange={v => setFormData({...formData, classId: v})}>
+                          <SelectTrigger className="rounded-xl h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors cursor-pointer">
+                            <SelectValue placeholder="Pilih Kelompok" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-xl">
+                            {classes.map(c => (
+                              <SelectItem key={c.id} value={c.id} className="cursor-pointer">{c.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
-                 </div>
-              </div>
 
-              {/* Seksi Kontak Orang Tua */}
-              <div className="pt-2 border-t border-slate-100">
-                <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2"><Phone className="w-4 h-4 text-emerald-500"/> Kontak Orang Tua & Alamat</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Nama Orang Tua / Wali</Label>
-                      <Input value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})} placeholder="Nama Ibu/Ayah" className="rounded-xl" />
+                  <div className="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 space-y-4 sm:space-y-5">
+                     <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2 mb-4 pb-2 border-b border-slate-50"><User className="w-4 h-4 text-blue-400"/> Profil Anak</h3>
+                     <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Lengkap <span className="text-rose-500">*</span></Label>
+                        <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Masukkan Nama Lengkap Sesuai Akta" className="rounded-xl h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors" />
+                     </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Jenis Kelamin</Label>
+                          <Select value={formData.gender} onValueChange={v => setFormData({...formData, gender: v})}>
+                            <SelectTrigger className="rounded-xl h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors cursor-pointer">
+                              <SelectValue placeholder="Pilih Gender" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                              <SelectItem value="L" className="cursor-pointer">Laki-laki</SelectItem>
+                              <SelectItem value="P" className="cursor-pointer">Perempuan</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tanggal Lahir</Label>
+                          <Input type="date" value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})} className="rounded-xl h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors w-full cursor-pointer" />
+                        </div>
+                     </div>
+                  </div>
+                </TabsContent>
+
+                {/* Tab: Data Personal (Keluarga & Medis) */}
+                <TabsContent value="keluarga" className="space-y-6 mt-0">
+                  <div className="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 space-y-4 sm:space-y-5">
+                    <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2 mb-4 pb-2 border-b border-slate-50"><Phone className="w-4 h-4 text-emerald-400"/> Kontak Orang Tua & Domisili</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                          <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Wali / Orang Tua</Label>
+                          <Input value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})} placeholder="Nama Ayah / Ibu" className="rounded-xl h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Nomor WhatsApp Aktif</Label>
+                          <Input value={formData.parentPhone} onChange={e => setFormData({...formData, parentPhone: e.target.value})} placeholder="08..." className="rounded-xl h-11 bg-slate-50 border-slate-200 focus:bg-white transition-colors" />
+                        </div>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">No. WhatsApp</Label>
-                      <Input value={formData.parentPhone} onChange={e => setFormData({...formData, parentPhone: e.target.value})} placeholder="08..." className="rounded-xl" />
+                      <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Alamat Lengkap</Label>
+                      <Textarea value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Alamat lengkap rumah..." className="rounded-xl resize-none bg-slate-50 border-slate-200 focus:bg-white transition-colors" rows={3}/>
                     </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Alamat Lengkap</Label>
-                  <Textarea value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Alamat rumah..." className="rounded-xl resize-none" rows={2}/>
-                </div>
-              </div>
+                  </div>
 
-              {/* Seksi Medis */}
-              <div className="pt-2 border-t border-slate-100">
-                <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2"><HeartPulse className="w-4 h-4 text-rose-500"/> Catatan Medis</h3>
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Alergi / Riwayat Penyakit Khusus</Label>
-                  <Input value={formData.allergies} onChange={e => setFormData({...formData, allergies: e.target.value})} placeholder="Misal: Alergi seafood, asma (Kosongkan jika tidak ada)" className="rounded-xl" />
+                  <div className="bg-rose-50/30 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-rose-100 space-y-4 sm:space-y-5">
+                     <h3 className="text-sm font-bold text-rose-700 flex items-center gap-2 mb-2 pb-2 border-b border-rose-100"><HeartPulse className="w-4 h-4 text-rose-500"/> Riwayat Medis Khusus</h3>
+                     <p className="text-xs text-rose-600/80 mb-4">Informasi ini sangat penting agar guru dapat memantau kondisi dan pantangan anak dengan baik.</p>
+                     <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-rose-700 uppercase tracking-wider">Catatan Alergi / Penyakit Bawaan</Label>
+                        <Input value={formData.allergies} onChange={e => setFormData({...formData, allergies: e.target.value})} placeholder="Misal: Asma, Alergi Kacang, dll (kosongkan jika tidak ada)" className="rounded-xl h-11 bg-white border-rose-200 focus-visible:ring-rose-200 text-slate-800 placeholder:text-slate-400" />
+                     </div>
+                  </div>
+                </TabsContent>
                 </div>
-              </div>
 
+              </Tabs>
             </div>
-            <DialogFooter className="px-6 py-4 border-t border-slate-100 bg-slate-50/50">
-              <Button variant="outline" onClick={() => setIsAddOpen(false)} className="rounded-xl" disabled={isSaving}>Batal</Button>
-              <Button className="gradient-primary text-white rounded-xl" onClick={handleSave} disabled={isSaving}>
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                Simpan Data
-              </Button>
+            <DialogFooter className="px-5 sm:px-8 py-4 sm:py-5 border-t border-slate-100 bg-white">
+              <div className="flex justify-end gap-3 w-full">
+                <Button variant="outline" onClick={() => setIsAddOpen(false)} className="rounded-xl px-6 h-11 hover:bg-slate-50" disabled={isSaving}>Batal</Button>
+                <Button className="gradient-primary text-white rounded-xl px-8 h-11 shadow-md shadow-indigo-500/20 hover:shadow-lg transition-all" onClick={handleSave} disabled={isSaving}>
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Simpan Data Siswa
+                </Button>
+              </div>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -288,7 +313,7 @@ export default function AdminStudentsPage() {
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-white/60 p-2 flex gap-1 overflow-x-auto">
         <button
           onClick={() => setSelectedTab("all")}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
+          className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
             selectedTab === "all"
               ? "gradient-primary text-white shadow-md shadow-indigo-500/20"
               : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
@@ -304,7 +329,7 @@ export default function AdminStudentsPage() {
           <button
             key={cls.id}
             onClick={() => setSelectedTab(cls.id)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
+            className={`cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
               selectedTab === cls.id
                 ? "gradient-primary text-white shadow-md shadow-indigo-500/20"
                 : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
@@ -367,7 +392,7 @@ export default function AdminStudentsPage() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className="inline-flex items-center rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-500/10">
+                        <span className="inline-flex items-center rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-500/10 hover:bg-indigo-100 transition-colors cursor-pointer">
                           {classNameText}
                         </span>
                       </TableCell>
@@ -375,7 +400,7 @@ export default function AdminStudentsPage() {
                         {classTeachers.length > 0 ? (
                           <div className="flex flex-col gap-1">
                             {classTeachers.map(t => (
-                              <span key={t.id} className="text-xs text-slate-600 flex items-center gap-1">
+                              <span key={t.id} className="text-xs text-slate-600 flex items-center gap-1 cursor-default">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                                 {t.name}
                               </span>
@@ -387,13 +412,13 @@ export default function AdminStudentsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50" onClick={() => handleOpenView(student)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 cursor-pointer" onClick={() => handleOpenView(student)}>
                             <Eye className="h-3.5 w-3.5" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => handleOpenEdit(student)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 cursor-pointer" onClick={() => handleOpenEdit(student)}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50" onClick={() => handleDelete(student.id)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 cursor-pointer" onClick={() => handleDelete(student.id)}>
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
@@ -412,64 +437,72 @@ export default function AdminStudentsPage() {
 
       {/* View Detail Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="rounded-2xl max-w-md">
-          <DialogHeader className="border-b border-slate-100 pb-4">
-            <DialogTitle className="text-lg font-bold flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-500"/> Detail Profil Siswa
+        <DialogContent className="rounded-3xl sm:max-w-md w-[95vw] sm:w-full shadow-2xl p-0 border-0 overflow-hidden">
+          <DialogHeader className="px-6 py-5 border-b border-indigo-100 bg-linear-to-r from-blue-50/50 to-white">
+            <DialogTitle className="text-lg font-bold flex items-center gap-2 text-slate-800">
+              <Users className="w-5 h-5 text-blue-500"/> Detail Profil Anak
             </DialogTitle>
           </DialogHeader>
-          {viewData && (
-            <div className="space-y-5 py-4">
-              <div className="flex items-center gap-4">
-                 <div className="w-16 h-16 rounded-2xl gradient-blue flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-blue-500/20">
-                    {viewData.name.charAt(0)}
-                 </div>
-                 <div>
-                   <h3 className="text-xl font-bold text-slate-800">{viewData.name}</h3>
-                   <span className="inline-flex items-center rounded-lg bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-500/10 mt-1">
-                    {classes.find(c => c.id === viewData.classId)?.name || viewData.classId}
-                   </span>
-                 </div>
-              </div>
+          <div className="p-6 bg-slate-50/30">
+            {viewData && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                   <div className="w-20 h-20 rounded-3xl gradient-blue flex items-center justify-center text-white text-3xl font-bold shadow-xl shadow-blue-500/20">
+                      {viewData.name.charAt(0)}
+                   </div>
+                   <div>
+                     <h3 className="text-xl font-bold text-slate-800 leading-tight">{viewData.name}</h3>
+                     <span className="inline-flex items-center rounded-lg bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-500/10 mt-2">
+                      Kelompok {classes.find(c => c.id === viewData.classId)?.name || viewData.classId}
+                     </span>
+                   </div>
+                </div>
 
-              <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Nomor Induk / NIS</span>
-                  <span className="text-sm font-mono text-slate-800 font-medium">{viewData.nis}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Jenis Kelamin</span>
-                  <span className="text-sm text-slate-800">{viewData.gender === "L" ? "Laki-laki" : viewData.gender === "P" ? "Perempuan" : "-"}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Tanggal Lahir</span>
-                  <span className="text-sm text-slate-800">{viewData.dateOfBirth ? new Date(viewData.dateOfBirth).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "-"}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Nama Orang Tua/Wali</span>
-                  <span className="text-sm text-slate-800">{viewData.parentName || "-"}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">No. Telepon / WA</span>
-                  <span className="text-sm text-slate-800">{viewData.parentPhone || "-"}</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Alamat Domisili</span>
-                  <span className="text-sm text-slate-800">{viewData.address || "-"}</span>
-                </div>
-              </div>
-
-              {viewData.allergies && (
-                <div className="bg-rose-50/50 rounded-xl p-4 border border-rose-100 flex items-start gap-3">
-                  <HeartPulse className="w-5 h-5 text-rose-500 shrink-0 mt-0.5"/>
-                  <div>
-                    <h4 className="text-xs font-bold text-rose-700 uppercase tracking-wider mb-1">Catatan Medis / Alergi</h4>
-                    <p className="text-sm text-rose-600">{viewData.allergies}</p>
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-linear-to-br from-indigo-50 to-blue-50 rounded-bl-full -z-10 bg-opacity-50"></div>
+                  
+                  <div className="flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nomor Induk / NIS</span>
+                    <span className="text-sm font-mono text-indigo-600 font-bold">{viewData.nis}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Jenis Kelamin</span>
+                    <span className="text-sm font-semibold text-slate-700">{viewData.gender === "L" ? "Laki-laki" : viewData.gender === "P" ? "Perempuan" : "-"}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tanggal Lahir</span>
+                    <span className="text-sm font-semibold text-slate-700">{viewData.dateOfBirth ? new Date(viewData.dateOfBirth).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "-"}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nama Wali</span>
+                    <span className="text-sm font-semibold text-slate-700">{viewData.parentName || "-"}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">No. Telepon / WA</span>
+                    <span className="text-sm font-semibold text-slate-700">{viewData.parentPhone || "-"}</span>
+                  </div>
+                  <div className="flex flex-col gap-1.5 pt-1">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Alamat Domisili</span>
+                    <span className="text-sm font-medium text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 leading-relaxed">{viewData.address || "-"}</span>
                   </div>
                 </div>
-              )}
+
+                {viewData.allergies && (
+                  <div className="bg-linear-to-r from-rose-50 to-white rounded-2xl p-4 border border-rose-100 flex items-start gap-3 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-12 h-12 bg-rose-100 rounded-bl-full -z-10 bg-opacity-50"></div>
+                    <HeartPulse className="w-5 h-5 text-rose-500 shrink-0 mt-0.5"/>
+                    <div className="flex-1">
+                      <h4 className="text-[11px] font-bold text-rose-700 uppercase tracking-wider mb-1">Catatan Medis Khusus</h4>
+                      <p className="text-sm font-semibold text-rose-600 leading-snug">{viewData.allergies}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="mt-6 flex justify-end">
+              <Button onClick={() => setIsViewOpen(false)} className="rounded-xl px-6 h-10 w-full sm:w-auto shadow-sm cursor-pointer hover:bg-slate-100 hover:text-slate-800 bg-white border border-slate-200 text-slate-700">Tutup Profil</Button>
             </div>
-          )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -32,7 +32,7 @@ export function Navbar({ userName, role, sidebarCollapsed, onToggleSidebar, onTo
   const RoleIcon = role === "admin" ? ShieldCheck : GraduationCap;
 
   return (
-    <nav className="fixed top-0 z-30 w-full glass-strong border-b border-white/40">
+    <nav className="fixed top-0 z-30 w-full glass-strong border-b border-white/40 shadow-b shadow-lg">
       <div className={`px-4 py-2.5 lg:px-6 transition-all duration-300 ${sidebarCollapsed ? "sm:pl-[5.5rem]" : "sm:pl-[17rem]"}`}>
         <div className="flex items-center justify-between">
           {/* Left Side */}

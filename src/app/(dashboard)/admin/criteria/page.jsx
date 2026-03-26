@@ -55,10 +55,8 @@ export default function AdminCriteriaPage() {
           </div>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger asChild>
-            <Button className="mt-4 sm:mt-0 gradient-primary text-white rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200">
-              <Plus className="w-4 h-4 mr-2" /> Tambah Kriteria
-            </Button>
+          <DialogTrigger render={<Button className="mt-4 sm:mt-0 gradient-primary text-white rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200" />}>
+            <Plus className="w-4 h-4 mr-2" /> Tambah Kriteria
           </DialogTrigger>
           <DialogContent className="rounded-2xl">
             <DialogHeader>

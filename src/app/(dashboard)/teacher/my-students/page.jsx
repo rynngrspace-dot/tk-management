@@ -174,64 +174,72 @@ export default function TeacherMyStudentsPage() {
 
       {/* View Detail Dialog */}
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="rounded-2xl max-w-md">
-          <DialogHeader className="border-b border-slate-100 pb-4">
-            <DialogTitle className="text-lg font-bold flex items-center gap-2">
-              <Users className="w-5 h-5 text-blue-500"/> Detail Profil Siswa
+        <DialogContent className="rounded-3xl sm:max-w-md w-[95vw] sm:w-full shadow-2xl p-0 border-0 overflow-hidden">
+          <DialogHeader className="px-6 py-5 border-b border-indigo-100 bg-linear-to-r from-blue-50/50 to-white">
+            <DialogTitle className="text-lg font-bold flex items-center gap-2 text-slate-800">
+              <Users className="w-5 h-5 text-blue-500"/> Detail Profil Anak
             </DialogTitle>
           </DialogHeader>
-          {viewData && (
-            <div className="space-y-5 py-4">
-              <div className="flex items-center gap-4">
-                 <div className="w-16 h-16 rounded-2xl gradient-blue flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-blue-500/20">
-                    {viewData.name.charAt(0)}
-                 </div>
-                 <div>
-                   <h3 className="text-xl font-bold text-slate-800">{viewData.name}</h3>
-                   <span className="inline-flex items-center rounded-lg bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-500/10 mt-1">
-                    {classes.find(c => c.id === viewData.classId)?.name || viewData.classId}
-                   </span>
-                 </div>
-              </div>
+          <div className="p-6 bg-slate-50/30">
+            {viewData && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                   <div className="w-20 h-20 rounded-3xl gradient-blue flex items-center justify-center text-white text-3xl font-bold shadow-xl shadow-blue-500/20">
+                      {viewData.name.charAt(0)}
+                   </div>
+                   <div>
+                     <h3 className="text-xl font-bold text-slate-800 leading-tight">{viewData.name}</h3>
+                     <span className="inline-flex items-center rounded-lg bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-500/10 mt-2">
+                      Kelompok {classes.find(c => c.id === viewData.classId)?.name || viewData.classId}
+                     </span>
+                   </div>
+                </div>
 
-              <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Nomor Induk / NIS</span>
-                  <span className="text-sm font-mono text-slate-800 font-medium">{viewData.nis}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Jenis Kelamin</span>
-                  <span className="text-sm text-slate-800">{viewData.gender === "L" ? "Laki-laki" : viewData.gender === "P" ? "Perempuan" : "-"}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Tanggal Lahir</span>
-                  <span className="text-sm text-slate-800">{viewData.dateOfBirth ? new Date(viewData.dateOfBirth).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "-"}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Nama Orang Tua/Wali</span>
-                  <span className="text-sm text-slate-800">{viewData.parentName || "-"}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">No. Telepon / WA</span>
-                  <span className="text-sm text-slate-800">{viewData.parentPhone || "-"}</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-semibold text-slate-500 uppercase">Alamat Domisili</span>
-                  <span className="text-sm text-slate-800">{viewData.address || "-"}</span>
-                </div>
-              </div>
-
-              {viewData.allergies && (
-                <div className="bg-rose-50/50 rounded-xl p-4 border border-rose-100 flex items-start gap-3">
-                  <HeartPulse className="w-5 h-5 text-rose-500 shrink-0 mt-0.5"/>
-                  <div>
-                    <h4 className="text-xs font-bold text-rose-700 uppercase tracking-wider mb-1">Catatan Medis / Alergi</h4>
-                    <p className="text-sm text-rose-600">{viewData.allergies}</p>
+                <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-linear-to-br from-indigo-50 to-blue-50 rounded-bl-full -z-10 bg-opacity-50"></div>
+                  
+                  <div className="flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nomor Induk / NIS</span>
+                    <span className="text-sm font-mono text-indigo-600 font-bold">{viewData.nis}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Jenis Kelamin</span>
+                    <span className="text-sm font-semibold text-slate-700">{viewData.gender === "L" ? "Laki-laki" : viewData.gender === "P" ? "Perempuan" : "-"}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tanggal Lahir</span>
+                    <span className="text-sm font-semibold text-slate-700">{viewData.dateOfBirth ? new Date(viewData.dateOfBirth).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "-"}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nama Wali</span>
+                    <span className="text-sm font-semibold text-slate-700">{viewData.parentName || "-"}</span>
+                  </div>
+                  <div className="flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">No. Telepon / WA</span>
+                    <span className="text-sm font-semibold text-slate-700">{viewData.parentPhone || "-"}</span>
+                  </div>
+                  <div className="flex flex-col gap-1.5 pt-1">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Alamat Domisili</span>
+                    <span className="text-sm font-medium text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 leading-relaxed">{viewData.address || "-"}</span>
                   </div>
                 </div>
-              )}
+
+                {viewData.allergies && (
+                  <div className="bg-linear-to-r from-rose-50 to-white rounded-2xl p-4 border border-rose-100 flex items-start gap-3 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-12 h-12 bg-rose-100 rounded-bl-full -z-10 bg-opacity-50"></div>
+                    <HeartPulse className="w-5 h-5 text-rose-500 shrink-0 mt-0.5"/>
+                    <div className="flex-1">
+                      <h4 className="text-[11px] font-bold text-rose-700 uppercase tracking-wider mb-1">Catatan Medis Khusus</h4>
+                      <p className="text-sm font-semibold text-rose-600 leading-snug">{viewData.allergies}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="mt-6 flex justify-end">
+              <Button onClick={() => setIsViewOpen(false)} className="rounded-xl px-6 h-10 w-full sm:w-auto shadow-sm cursor-pointer hover:bg-slate-100 hover:text-slate-800 bg-white border border-slate-200 text-slate-700">Tutup Detail</Button>
             </div>
-          )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

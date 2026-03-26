@@ -7,7 +7,7 @@ import { cookies } from "next/headers"
 export async function GET(request) {
   try {
     const cookieStore = await cookies()
-    const token = cookieStore.get("token")?.value
+    const token = cookieStore.get("tk-auth-token")?.value
     
     if (!token) {
       return NextResponse.json({ error: "Tidak ada akses" }, { status: 401 })
@@ -38,7 +38,7 @@ export async function GET(request) {
 export async function PUT(request) {
   try {
     const cookieStore = await cookies()
-    const token = cookieStore.get("token")?.value
+    const token = cookieStore.get("tk-auth-token")?.value
     
     if (!token) {
       return NextResponse.json({ error: "Tidak ada akses" }, { status: 401 })
