@@ -5,6 +5,9 @@ import { signToken, setAuthCookie } from "@/lib/auth"
 
 export async function POST(request) {
   try {
+
+    console.log("DATABASE_URL:", process.env.DATABASE_URL)
+
     const { email, password } = await request.json()
 
     // Validate input
