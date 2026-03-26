@@ -12,31 +12,7 @@ async function main() {
 
   const hashedPassword = await bcrypt.hash("123", 10)
 
-  const admin = await prisma.user.upsert({
-    where: { email: "admin@tk.com" },
-    update: {},
-    create: {
-      name: "Admin Utama",
-      email: "admin@tk.com",
-      password: hashedPassword,
-      role: "admin",
-    },
-  })
-  console.log(`✅ Admin: ${admin.email}`)
-
-  const teacher = await prisma.user.upsert({
-    where: { email: "guru@tk.com" },
-    update: {},
-    create: {
-      name: "Siti Nurhaliza",
-      email: "guru@tk.com",
-      password: hashedPassword,
-      role: "teacher",
-    },
-  })
-  console.log(`✅ Guru: ${teacher.email}`)
-
-  // Seed Classes
+  // Seed Classes FIRST so we can assign them
   const classA = await prisma.class.upsert({
     where: { id: "A" },
     update: {},
@@ -54,6 +30,31 @@ async function main() {
     },
   })
   console.log(`✅ Classes: ${classA.name}, ${classB.name}`)
+
+  const admin = await prisma.user.upsert({
+    where: { email: "admin@tk.com" },
+    update: {},
+    create: {
+      name: "Admin Utama",
+      email: "admin@tk.com",
+      password: hashedPassword,
+      role: "admin",
+    },
+  })
+  console.log(`✅ Admin: ${admin.email}`)
+
+  const teacher = await prisma.user.upsert({
+    where: { email: "guru@tk.com" },
+    update: { classId: "A" }, // Ensure classId is updated if running on existing data
+    create: {
+      name: "Siti Nurhaliza",
+      email: "guru@tk.com",
+      password: hashedPassword,
+      role: "teacher",
+      classId: "A", // Relate to Kelompok A
+    },
+  })
+  console.log(`✅ Guru: ${teacher.email} assigned to class ${teacher.classId}`)
 
   // Seed Students
   const studentsToSeed = [

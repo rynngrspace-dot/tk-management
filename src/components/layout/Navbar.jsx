@@ -28,7 +28,7 @@ export function Navbar({ userName, role, sidebarCollapsed, onToggleSidebar, onTo
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const profilePath = role === "admin" ? "/admin/profile" : "/teacher/profile";
+  const profilePath = "/profile";
   const RoleIcon = role === "admin" ? ShieldCheck : GraduationCap;
 
   return (

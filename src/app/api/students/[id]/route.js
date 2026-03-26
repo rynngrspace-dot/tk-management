@@ -30,6 +30,12 @@ export async function PUT(request, { params }) {
         name: data.name,
         nis: data.nis,
         classId: data.classId,
+        gender: data.gender !== undefined ? data.gender : undefined,
+        dateOfBirth: data.dateOfBirth !== undefined ? (data.dateOfBirth ? new Date(data.dateOfBirth) : null) : undefined,
+        parentName: data.parentName !== undefined ? data.parentName : undefined,
+        parentPhone: data.parentPhone !== undefined ? data.parentPhone : undefined,
+        address: data.address !== undefined ? data.address : undefined,
+        allergies: data.allergies !== undefined ? data.allergies : undefined,
       },
       include: {
         class: true,

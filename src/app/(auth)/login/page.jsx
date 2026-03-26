@@ -40,6 +40,12 @@ export default function LoginPage() {
         toast.success(`Berhasil login sebagai ${data.user.name}`);
         localStorage.setItem("userRole", data.user.role);
         localStorage.setItem("userName", data.user.name);
+        
+        if (data.user.classId) {
+          localStorage.setItem("classId", data.user.classId);
+        } else {
+          localStorage.removeItem("classId");
+        }
 
         if (data.user.role === "admin") {
           router.push("/admin");

@@ -6,35 +6,47 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { Plus, Pencil, Trash2, Search, Users, Loader2 } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Plus, Pencil, Trash2, Search, Users, Loader2, Eye, Calendar, User, Phone, MapPin, HeartPulse } from "lucide-react"
 import { toast } from "sonner"
 
 export default function AdminStudentsPage() {
   const [students, setStudents] = useState([])
   const [classes, setClasses] = useState([])
+  const [teachers, setTeachers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedTab, setSelectedTab] = useState("all")
   
   const [isAddOpen, setIsAddOpen] = useState(false)
-  const [formData, setFormData] = useState({ id: null, name: "", nis: "", classId: "" })
+  const [isViewOpen, setIsViewOpen] = useState(false)
+  
+  const [formData, setFormData] = useState({ 
+    id: null, name: "", nis: "", classId: "",
+    gender: "", dateOfBirth: "", parentName: "", parentPhone: "", address: "", allergies: ""
+  })
+  
+  const [viewData, setViewData] = useState(null)
 
   const fetchData = async () => {
     try {
       setIsLoading(true)
-      const [resStudents, resClasses] = await Promise.all([
+      const [resStudents, resClasses, resTeachers] = await Promise.all([
         fetch("/api/students"),
-        fetch("/api/classes")
+        fetch("/api/classes"),
+        fetch("/api/teachers")
       ])
       
-      if (!resStudents.ok || !resClasses.ok) throw new Error("Failed to fetch")
+      if (!resStudents.ok || !resClasses.ok || !resTeachers.ok) throw new Error("Failed to fetch")
       
       const dataStudents = await resStudents.json()
       const dataClasses = await resClasses.json()
+      const dataTeachers = await resTeachers.json()
       
       setStudents(dataStudents)
       setClasses(dataClasses)
+      setTeachers(dataTeachers)
     } catch (error) {
       toast.error("Gagal memuat data dari server")
       console.error(error)
@@ -55,18 +67,37 @@ export default function AdminStudentsPage() {
     )
 
   const handleOpenAdd = () => {
-    setFormData({ id: null, name: "", nis: "", classId: "" })
+    setFormData({ 
+      id: null, name: "", nis: "", classId: "",
+      gender: "", dateOfBirth: "", parentName: "", parentPhone: "", address: "", allergies: ""
+    })
     setIsAddOpen(true)
   }
 
   const handleOpenEdit = (student) => {
-    setFormData({ id: student.id, name: student.name, nis: student.nis, classId: student.classId })
+    setFormData({ 
+      id: student.id, 
+      name: student.name, 
+      nis: student.nis, 
+      classId: student.classId,
+      gender: student.gender || "",
+      dateOfBirth: student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : "",
+      parentName: student.parentName || "",
+      parentPhone: student.parentPhone || "",
+      address: student.address || "",
+      allergies: student.allergies || ""
+    })
     setIsAddOpen(true)
+  }
+  
+  const handleOpenView = (student) => {
+    setViewData(student)
+    setIsViewOpen(true)
   }
 
   const handleSave = async () => {
     if (!formData.name || !formData.nis || !formData.classId) {
-      toast.error("Semua field harus diisi!")
+      toast.error("Nama, NIS, dan Kelompok wajib diisi!")
       return
     }
     
@@ -75,14 +106,22 @@ export default function AdminStudentsPage() {
       const url = formData.id ? `/api/students/${formData.id}` : "/api/students"
       const method = formData.id ? "PUT" : "POST"
       
+      const payload = {
+        name: formData.name,
+        nis: formData.nis,
+        classId: formData.classId,
+        gender: formData.gender,
+        dateOfBirth: formData.dateOfBirth,
+        parentName: formData.parentName,
+        parentPhone: formData.parentPhone,
+        address: formData.address,
+        allergies: formData.allergies
+      }
+      
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          nis: formData.nis,
-          classId: formData.classId
-        })
+        body: JSON.stringify(payload)
       })
       
       const data = await res.json()
@@ -137,7 +176,7 @@ export default function AdminStudentsPage() {
           </div>
           <div>
             <h2 className="text-xl font-bold tracking-tight text-slate-800">Manajemen Siswa</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Kelola data siswa TK dan penempatan kelompok</p>
+            <p className="text-xs text-slate-500 mt-0.5">Kelola data lengkap siswa TK dan penempatan kelompok</p>
           </div>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
@@ -146,38 +185,99 @@ export default function AdminStudentsPage() {
               <Plus className="w-4 h-4 mr-2" /> Tambah Siswa
             </Button>
           </DialogTrigger>
-          <DialogContent className="rounded-2xl">
-            <DialogHeader>
+          <DialogContent className="rounded-2xl max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+            <DialogHeader className="px-6 py-4 border-b border-slate-100 bg-white z-10">
               <DialogTitle className="text-lg font-bold">{formData.id ? "Edit Siswa" : "Tambah Siswa Baru"}</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Nomor Induk Siswa (NIS)</Label>
-                <Input value={formData.nis} onChange={e => setFormData({...formData, nis: e.target.value})} placeholder="Masukkan NIS" className="rounded-xl" />
+            <div className="p-6 overflow-y-auto space-y-6">
+              
+              {/* Seksi Akademik */}
+              <div>
+                <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2"><Users className="w-4 h-4 text-indigo-500"/> Informasi Akademik</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Nomor Induk Siswa (NIS) <span className="text-rose-500">*</span></Label>
+                    <Input value={formData.nis} onChange={e => setFormData({...formData, nis: e.target.value})} placeholder="Masukkan NIS" className="rounded-xl" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Kelompok / Kelas <span className="text-rose-500">*</span></Label>
+                    <Select value={formData.classId} onValueChange={v => setFormData({...formData, classId: v})}>
+                      <SelectTrigger className="rounded-xl">
+                        <SelectValue placeholder="Pilih Kelompok" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {classes.map(c => (
+                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Nama Lengkap</Label>
-                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Masukkan Nama Siswa" className="rounded-xl" />
+
+              {/* Seksi Profil Anak */}
+              <div className="pt-2 border-t border-slate-100">
+                 <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2"><User className="w-4 h-4 text-blue-500"/> Profil Anak</h3>
+                 <div className="space-y-4">
+                   <div className="space-y-2">
+                    <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Nama Lengkap <span className="text-rose-500">*</span></Label>
+                    <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Masukkan Nama Lengkap Sesuai Akta" className="rounded-xl" />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Jenis Kelamin</Label>
+                      <Select value={formData.gender} onValueChange={v => setFormData({...formData, gender: v})}>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder="Pilih Gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="L">Laki-laki</SelectItem>
+                          <SelectItem value="P">Perempuan</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Tanggal Lahir</Label>
+                      <Input type="date" value={formData.dateOfBirth} onChange={e => setFormData({...formData, dateOfBirth: e.target.value})} className="rounded-xl" />
+                    </div>
+                  </div>
+                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Kelompok / Kelas</Label>
-                <Select value={formData.classId} onValueChange={v => setFormData({...formData, classId: v})}>
-                  <SelectTrigger className="rounded-xl">
-                    <SelectValue placeholder="Pilih Kelompok" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {classes.map(c => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+
+              {/* Seksi Kontak Orang Tua */}
+              <div className="pt-2 border-t border-slate-100">
+                <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2"><Phone className="w-4 h-4 text-emerald-500"/> Kontak Orang Tua & Alamat</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Nama Orang Tua / Wali</Label>
+                      <Input value={formData.parentName} onChange={e => setFormData({...formData, parentName: e.target.value})} placeholder="Nama Ibu/Ayah" className="rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">No. WhatsApp</Label>
+                      <Input value={formData.parentPhone} onChange={e => setFormData({...formData, parentPhone: e.target.value})} placeholder="08..." className="rounded-xl" />
+                    </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Alamat Lengkap</Label>
+                  <Textarea value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} placeholder="Alamat rumah..." className="rounded-xl resize-none" rows={2}/>
+                </div>
               </div>
+
+              {/* Seksi Medis */}
+              <div className="pt-2 border-t border-slate-100">
+                <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2"><HeartPulse className="w-4 h-4 text-rose-500"/> Catatan Medis</h3>
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Alergi / Riwayat Penyakit Khusus</Label>
+                  <Input value={formData.allergies} onChange={e => setFormData({...formData, allergies: e.target.value})} placeholder="Misal: Alergi seafood, asma (Kosongkan jika tidak ada)" className="rounded-xl" />
+                </div>
+              </div>
+
             </div>
-            <DialogFooter>
+            <DialogFooter className="px-6 py-4 border-t border-slate-100 bg-slate-50/50">
               <Button variant="outline" onClick={() => setIsAddOpen(false)} className="rounded-xl" disabled={isSaving}>Batal</Button>
               <Button className="gradient-primary text-white rounded-xl" onClick={handleSave} disabled={isSaving}>
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                Simpan
+                Simpan Data
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -236,13 +336,14 @@ export default function AdminStudentsPage() {
                 <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">NIS</TableHead>
                 <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">Nama Siswa</TableHead>
                 <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">Kelompok</TableHead>
+                <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">Guru Pengajar</TableHead>
                 <TableHead className="text-right font-semibold text-xs uppercase tracking-wider text-slate-500">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredStudents.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-slate-400 py-12">
+                  <TableCell colSpan={5} className="text-center text-slate-400 py-12">
                     <div className="flex flex-col items-center gap-2">
                       <Users className="w-8 h-8 text-slate-300" />
                       <span>Siswa tidak ditemukan</span>
@@ -252,6 +353,8 @@ export default function AdminStudentsPage() {
               ) : (
                 filteredStudents.map((student) => {
                   const classNameText = classes.find(c => c.id === student.classId)?.name || student.classId
+                  const classTeachers = teachers.filter(t => t.classId === student.classId)
+                  
                   return (
                     <TableRow key={student.id} className="table-row-hover transition-colors">
                       <TableCell className="font-mono text-sm text-indigo-600 font-medium">{student.nis}</TableCell>
@@ -268,8 +371,25 @@ export default function AdminStudentsPage() {
                           {classNameText}
                         </span>
                       </TableCell>
+                      <TableCell>
+                        {classTeachers.length > 0 ? (
+                          <div className="flex flex-col gap-1">
+                            {classTeachers.map(t => (
+                              <span key={t.id} className="text-xs text-slate-600 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                {t.name}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400 italic">Belum ada guru</span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50" onClick={() => handleOpenView(student)}>
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
                           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => handleOpenEdit(student)}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
@@ -289,6 +409,69 @@ export default function AdminStudentsPage() {
           <span>Menampilkan {filteredStudents.length} dari {students.length} siswa</span>
         </div>
       </div>
+
+      {/* View Detail Dialog */}
+      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
+        <DialogContent className="rounded-2xl max-w-md">
+          <DialogHeader className="border-b border-slate-100 pb-4">
+            <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <Users className="w-5 h-5 text-blue-500"/> Detail Profil Siswa
+            </DialogTitle>
+          </DialogHeader>
+          {viewData && (
+            <div className="space-y-5 py-4">
+              <div className="flex items-center gap-4">
+                 <div className="w-16 h-16 rounded-2xl gradient-blue flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-blue-500/20">
+                    {viewData.name.charAt(0)}
+                 </div>
+                 <div>
+                   <h3 className="text-xl font-bold text-slate-800">{viewData.name}</h3>
+                   <span className="inline-flex items-center rounded-lg bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-500/10 mt-1">
+                    {classes.find(c => c.id === viewData.classId)?.name || viewData.classId}
+                   </span>
+                 </div>
+              </div>
+
+              <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-semibold text-slate-500 uppercase">Nomor Induk / NIS</span>
+                  <span className="text-sm font-mono text-slate-800 font-medium">{viewData.nis}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-semibold text-slate-500 uppercase">Jenis Kelamin</span>
+                  <span className="text-sm text-slate-800">{viewData.gender === "L" ? "Laki-laki" : viewData.gender === "P" ? "Perempuan" : "-"}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-semibold text-slate-500 uppercase">Tanggal Lahir</span>
+                  <span className="text-sm text-slate-800">{viewData.dateOfBirth ? new Date(viewData.dateOfBirth).toLocaleDateString("id-ID", { day: 'numeric', month: 'long', year: 'numeric' }) : "-"}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-semibold text-slate-500 uppercase">Nama Orang Tua/Wali</span>
+                  <span className="text-sm text-slate-800">{viewData.parentName || "-"}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-semibold text-slate-500 uppercase">No. Telepon / WA</span>
+                  <span className="text-sm text-slate-800">{viewData.parentPhone || "-"}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-semibold text-slate-500 uppercase">Alamat Domisili</span>
+                  <span className="text-sm text-slate-800">{viewData.address || "-"}</span>
+                </div>
+              </div>
+
+              {viewData.allergies && (
+                <div className="bg-rose-50/50 rounded-xl p-4 border border-rose-100 flex items-start gap-3">
+                  <HeartPulse className="w-5 h-5 text-rose-500 shrink-0 mt-0.5"/>
+                  <div>
+                    <h4 className="text-xs font-bold text-rose-700 uppercase tracking-wider mb-1">Catatan Medis / Alergi</h4>
+                    <p className="text-sm text-rose-600">{viewData.allergies}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

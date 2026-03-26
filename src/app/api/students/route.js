@@ -54,6 +54,12 @@ export async function POST(request) {
         name: data.name,
         nis: data.nis,
         classId: data.classId,
+        gender: data.gender || null,
+        dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+        parentName: data.parentName || null,
+        parentPhone: data.parentPhone || null,
+        address: data.address || null,
+        allergies: data.allergies || null,
       },
       include: {
         class: true,

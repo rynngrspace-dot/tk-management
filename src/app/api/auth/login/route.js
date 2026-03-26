@@ -42,6 +42,7 @@ export async function POST(request) {
       email: user.email,
       name: user.name,
       role: user.role,
+      classId: user.classId,
     })
 
     // Create response with user data
@@ -52,6 +53,7 @@ export async function POST(request) {
         name: user.name,
         email: user.email,
         role: user.role,
+        classId: user.classId,
       },
     })
 
