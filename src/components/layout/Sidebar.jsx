@@ -3,21 +3,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Users,
-  GraduationCap,
-  BookOpen,
-  ListChecks,
-  Calculator,
-  LayoutDashboard,
   Sparkles,
   ChevronDown,
-  ClipboardCheck,
-  FileText,
   LogOut,
   X,
-  CalendarDays,
-  BarChart3,
 } from "lucide-react";
+import { adminNav, teacherNav } from "@/lib/navigation";
 
 function SidebarGroup({ label, icon: Icon, children, pathname, collapsed }) {
   const isChildActive = children.some(
@@ -30,12 +21,12 @@ function SidebarGroup({ label, icon: Icon, children, pathname, collapsed }) {
     return (
       <li className="group relative">
         <div className="flex items-center justify-center py-2">
-          <div className={`p-2 rounded-xl transition-colors ${isChildActive ? "bg-white/20" : "hover:bg-white/10"}`}>
+          <div className={`p-2 rounded-md transition-colors ${isChildActive ? "bg-white/20" : "hover:bg-white/10"}`}>
             <Icon className="w-[18px] h-[18px] text-indigo-100" />
           </div>
         </div>
         {/* Tooltip flyout */}
-        <div className="hidden group-hover:block absolute left-full top-0 ml-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-2 z-50">
+        <div className="hidden group-hover:block absolute left-full top-0 ml-2 w-48 bg-white rounded-md shadow-lg border border-slate-100 py-2 z-50">
           <p className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</p>
           {children.map((item) => {
             const isActive = pathname === item.href;
@@ -63,20 +54,20 @@ function SidebarGroup({ label, icon: Icon, children, pathname, collapsed }) {
     <li>
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-indigo-100 hover:bg-white/10 hover:text-white"
+        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 text-indigo-100 hover:bg-white/10 hover:text-white cursor-pointer"
       >
         <Icon className="w-[18px] h-[18px]" />
         <span className="flex-1 text-left">{label}</span>
         <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
       </button>
-      <ul className={`overflow-hidden transition-all duration-300 ease-in-out ${open ? "max-h-[500px] opacity-100 mt-1" : "max-h-0 opacity-0"}`}>
+      <ul className={`overflow-hidden transition-all duration-300 ease-in-out ${open ? "max-h-[500px] opacity-100 mt-1 space-y-1" : "max-h-0 opacity-0"}`}>
         {children.map((item) => {
           const isActive = pathname === item.href;
           return (
             <li key={item.name}>
               <Link
                 href={item.href}
-                className={`flex items-center gap-3 pl-10 pr-3 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 ${
+                className={`flex items-center gap-3 ml-8 px-3 py-2 rounded-md text-[13px] font-medium transition-all duration-200 ${
                   isActive
                     ? "bg-white text-indigo-700 shadow-lg shadow-indigo-900/20"
                     : "text-indigo-200/80 hover:bg-white/10 hover:text-white"
@@ -104,45 +95,6 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
     router.push("/login");
   };
 
-  const adminNav = [
-    { type: "link", name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    {
-      type: "group", label: "Data Master", icon: BookOpen,
-      children: [
-        { name: "Siswa", href: "/admin/students", icon: Users },
-        { name: "Guru", href: "/admin/teachers", icon: GraduationCap },
-        { name: "Kelas", href: "/admin/classes", icon: BookOpen },
-      ],
-    },
-    {
-      type: "group", label: "Penilaian SAW", icon: Calculator,
-      children: [
-        { name: "Kriteria", href: "/admin/criteria", icon: ListChecks },
-        { name: "Hasil SAW", href: "/admin/saw-results", icon: FileText },
-      ],
-    },
-  ];
-
-  const teacherNav = [
-    { type: "link", name: "Dashboard", href: "/teacher", icon: LayoutDashboard },
-    {
-      type: "group", label: "Siswa", icon: Users,
-      children: [
-        { name: "Siswa Saya", href: "/teacher/my-students", icon: Users },
-        { name: "Absensi", href: "/teacher/attendance", icon: ClipboardCheck },
-      ],
-    },
-    {
-      type: "group", label: "Penilaian", icon: ListChecks,
-      children: [
-        { name: "Kalender", href: "/teacher/calendar", icon: CalendarDays },
-        { name: "Input Nilai", href: "/teacher/assessment", icon: ListChecks },
-        { name: "Progres Mingguan", href: "/teacher/progress", icon: BarChart3 },
-        { name: "Hasil SAW", href: "/teacher/saw-results", icon: FileText },
-      ],
-    },
-  ];
-
   const navItems = role === "admin" ? adminNav : teacherNav;
 
   const sidebarContent = (isMobile = false) => (
@@ -150,7 +102,7 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
       {/* Logo Section */}
       <div className={`border-b border-white/10 ${collapsed && !isMobile ? "px-3 py-6" : "px-5 py-6"}`}>
         <div className={`flex items-center ${collapsed && !isMobile ? "justify-center" : "gap-3"}`}>
-          <div className={`${collapsed && !isMobile ? "w-9 h-9" : "w-10 h-10"} rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0`}>
+          <div className={`${collapsed && !isMobile ? "w-9 h-9" : "w-10 h-10"} rounded-md bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0`}>
             <Sparkles className={`${collapsed && !isMobile ? "w-4 h-4" : "w-5 h-5"} text-white`} />
           </div>
           {(!collapsed || isMobile) && (
@@ -196,7 +148,7 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
                 <li key={item.name} className="group relative">
                   <Link
                     href={item.href}
-                    className={`flex items-center justify-center p-2 rounded-xl transition-all duration-200 ${
+                    className={`flex items-center justify-center p-2 rounded-md transition-all duration-200 ${
                       isActive
                         ? "bg-white text-indigo-700 shadow-lg shadow-indigo-900/20"
                         : "text-indigo-100 hover:bg-white/10 hover:text-white"
@@ -215,7 +167,7 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
               <li key={item.name}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${
                     isActive
                       ? "bg-white text-indigo-700 shadow-lg shadow-indigo-900/20"
                       : "text-indigo-100 hover:bg-white/10 hover:text-white"
@@ -242,7 +194,7 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
             </div>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center justify-center p-2 rounded-xl transition-all duration-200 text-indigo-100 hover:bg-rose-500/20 hover:text-rose-200 group relative"
+              className="w-full flex items-center justify-center p-2 rounded-md transition-all duration-200 text-indigo-100 hover:bg-rose-500/20 hover:text-rose-200 group relative"
             >
               <LogOut className="w-[18px] h-[18px]" />
               <div className="hidden group-hover:block absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2.5 py-1 bg-slate-800 text-white text-xs rounded-lg whitespace-nowrap z-50">
@@ -252,7 +204,7 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
           </>
         ) : (
           <>
-            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/10 backdrop-blur-sm">
+            <div className="flex items-center gap-3 px-3 py-2.5 rounded-md bg-white/10 backdrop-blur-sm">
               <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white font-bold text-xs">
                 {role === "admin" ? "A" : "G"}
               </div>
@@ -264,7 +216,7 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
             </div>
             <button
               onClick={handleLogout}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 bg-white/10 text-indigo-100 hover:bg-rose-500/20 hover:text-rose-200"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 bg-white/10 text-indigo-100 hover:bg-rose-500/20 hover:text-rose-200"
             >
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
