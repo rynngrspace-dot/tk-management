@@ -1,231 +1,406 @@
-"use client"
-import { useState, useEffect } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { Calculator, Trophy, FileDown, X } from "lucide-react"
-import { getMockData, getAvailableWeeks } from "@/lib/mock-data"
-import { calculateSAW } from "@/lib/saw"
-import { PrintReport } from "@/components/layout/PrintReport"
+"use client";
+
+import { useState, useEffect } from "react";
+import { Calculator, AlertCircle, Medal, CheckCircle2, Info, FileDown, Trophy, Users, BookOpen } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+const MONTHS = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
 
 export default function AdminSAWResultsPage() {
-  const [results, setResults] = useState([])
-  const [classes, setClasses] = useState([])
-  const [criteria, setCriteria] = useState([])
-  const [selectedClass, setSelectedClass] = useState("all")
-  const [selectedWeek, setSelectedWeek] = useState("")
-  const [weeks, setWeeks] = useState([])
-  const [allAssessments, setAllAssessments] = useState([])
-  const [allStudents, setAllStudents] = useState([])
-  const [showPrint, setShowPrint] = useState(false)
+  const [classes, setClasses] = useState([]);
+  const [criteria, setCriteria] = useState([]);
+  const [selectedClass, setSelectedClass] = useState(""); // "" means Semua Kelas
+  const [selectedMonth, setSelectedMonth] = useState(MONTHS[new Date().getMonth()]);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  
+  const [students, setStudents] = useState([]);
+  const [results, setResults] = useState([]);
+  const [weeklyData, setWeeklyData] = useState({}); // { studentId: { week: { total, scores } } }
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+
+  // Init Data (Classes & Criteria)
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const [clsRes, criRes] = await Promise.all([
+          fetch("/api/classes"),
+          fetch("/api/criteria")
+        ]);
+        const [clsData, criData] = await Promise.all([
+          clsRes.json(),
+          criRes.json()
+        ]);
+        setClasses(clsData);
+        setCriteria(criData);
+      } catch (err) {
+        console.error("Init failed:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    init();
+  }, []);
+
+  // Fetch Everything
+  const fetchSummary = async () => {
+    setIsLoading(true);
+    try {
+      const period = `${selectedMonth} ${selectedYear}`;
+      
+      const stuRes = await fetch(`/api/students?classId=${selectedClass}`);
+      const stuData = await stuRes.json();
+      setStudents(stuData);
+
+      const resCount = await fetch(`/api/saw?classId=${selectedClass}&period=${encodeURIComponent(period)}`);
+      const resData = await resCount.json();
+      setResults(resData);
+
+      const progRes = await fetch(`/api/progress?classId=${selectedClass}&month=${selectedMonth}&year=${selectedYear}`);
+      const progData = await progRes.json();
+      
+      const totals = {};
+      progData.forEach(p => {
+        const sId = p.studentId;
+        const week = p.week;
+        if (!totals[sId]) totals[sId] = {};
+        const criteriaScores = {};
+        p.assessments.forEach(ass => {
+          criteriaScores[ass.criteria.code] = ass.score;
+        });
+        totals[sId][week] = {
+          total: p.assessments.reduce((sum, ass) => sum + (ass.score || 0), 0),
+          scores: criteriaScores
+        };
+      });
+      setWeeklyData(totals);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const data = getMockData()
-    const availableWeeks = getAvailableWeeks()
-    setClasses(data.classes)
-    setCriteria(data.criteria)
-    setWeeks(availableWeeks)
-    setAllAssessments(data.assessments)
-    setAllStudents(data.students)
-    const latestWeek = availableWeeks.length > 0 ? availableWeeks[availableWeeks.length - 1].value : ""
-    setSelectedWeek(latestWeek)
-    const fullResults = calculateSAW(data.students, data.criteria, data.assessments, latestWeek)
-    setResults(fullResults)
-  }, [])
+    fetchSummary();
+  }, [selectedClass, selectedMonth, selectedYear]);
 
-  const handleWeekChange = (week) => {
-    setSelectedWeek(week)
-    const data = getMockData()
-    const fullResults = calculateSAW(data.students, data.criteria, data.assessments, week)
-    setResults(fullResults)
-  }
+  const handleCalculateSAW = async () => {
+    if (!selectedClass) {
+      setMessage({ type: "error", text: "Pilih satu kelas spesifik untuk melakukan kalkulasi." });
+      return;
+    }
+    setIsCalculating(true);
+    setMessage({ type: "", text: "" });
+    try {
+      const period = `${selectedMonth} ${selectedYear}`;
+      const res = await fetch("/api/saw/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          classId: selectedClass,
+          month: selectedMonth,
+          year: selectedYear,
+          period
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || "Gagal menghitung matriks SAW");
+      setMessage({ type: "success", text: `Berhasil mengevaluasi ${data.processedStudents} siswa.` });
+      fetchSummary();
+    } catch (err) {
+      setMessage({ type: "error", text: err.message });
+    } finally {
+      setIsCalculating(false);
+    }
+  };
 
-  const displayResults = selectedClass === "all"
-    ? results
-    : results.filter(r => r.classId === selectedClass)
+  const getSawResult = (studentId) => {
+    return results.find(r => r.studentId === studentId);
+  };
 
-  const finalDisplay = displayResults.map((r, idx) => ({ ...r, displayRank: idx + 1 }))
-  const maxScore = finalDisplay.length > 0 ? Math.max(...finalDisplay.map(r => Number(r.score))) : 1
+  const getRankStyle = (index) => {
+    if (index === 0) return "bg-amber-100 text-amber-700 font-bold border-amber-200";
+    if (index === 1) return "bg-slate-200 text-slate-700 font-bold border-slate-300";
+    if (index === 2) return "bg-orange-100 text-orange-800 font-bold border-orange-200";
+    return "bg-slate-50 text-slate-500 font-medium border-slate-100";
+  };
 
-  const getRankStyle = (rank) => {
-    if (rank === 1) return { bg: "bg-gradient-to-r from-amber-400 to-yellow-500", text: "text-white", shadow: "shadow-amber-400/30" }
-    if (rank === 2) return { bg: "bg-gradient-to-r from-slate-300 to-slate-400", text: "text-white", shadow: "shadow-slate-400/30" }
-    if (rank === 3) return { bg: "bg-gradient-to-r from-amber-600 to-orange-700", text: "text-white", shadow: "shadow-orange-400/30" }
-    return null
-  }
-
-  const handleExportPDF = () => {
-    setShowPrint(true)
-    setTimeout(() => window.print(), 300)
-  }
+  const getStatusStyle = (status) => {
+    if (!status) return "bg-slate-100 text-slate-400 border-slate-200";
+    if (status.includes("Sangat Baik")) return "bg-emerald-100 text-emerald-800 border-emerald-200";
+    if (status.includes("Sesuai Harapan")) return "bg-blue-100 text-blue-800 border-blue-200";
+    if (status.includes("Mulai Berkembang")) return "bg-amber-100 text-amber-800 border-amber-200";
+    return "bg-rose-100 text-rose-800 border-rose-200";
+  };
 
   return (
     <div className="space-y-6">
-      {/* Print Report Overlay */}
-      {showPrint && (
-        <PrintReport
-          title="Laporan Hasil Perhitungan SAW"
-          subtitle={`Peringkat Perkembangan Siswa — ${selectedClass === "all" ? "Semua Kelompok" : classes.find(c => c.id === selectedClass)?.name}`}
-          show={showPrint}
-        >
-          <div className="mb-4 text-sm text-slate-600">
-            <p><strong>Metode:</strong> Simple Additive Weighting (SAW)</p>
-            <p><strong>Jumlah Kriteria:</strong> {criteria.length}</p>
-            <p><strong>Jumlah Siswa:</strong> {finalDisplay.length}</p>
-          </div>
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b-2 border-slate-800">
-                <th className="py-2 px-3 text-left font-bold">Peringkat</th>
-                <th className="py-2 px-3 text-left font-bold">NIS</th>
-                <th className="py-2 px-3 text-left font-bold">Nama Siswa</th>
-                <th className="py-2 px-3 text-left font-bold">Kelompok</th>
-                <th className="py-2 px-3 text-right font-bold">Skor Akhir</th>
-              </tr>
-            </thead>
-            <tbody>
-              {finalDisplay.map(row => (
-                <tr key={row.studentId} className="border-b border-slate-200">
-                  <td className="py-2 px-3 font-bold">{row.displayRank}</td>
-                  <td className="py-2 px-3">{row.nis}</td>
-                  <td className="py-2 px-3 font-medium">{row.name}</td>
-                  <td className="py-2 px-3">{classes.find(c => c.id === row.classId)?.name || row.classId}</td>
-                  <td className="py-2 px-3 text-right font-bold">{row.score}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button onClick={() => setShowPrint(false)} className="print:hidden mt-6 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-medium text-slate-700 transition-colors flex items-center gap-2 mx-auto">
-            <X className="w-4 h-4" /> Tutup Preview
-          </button>
-        </PrintReport>
-      )}
-
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/80 backdrop-blur-sm p-5 rounded-2xl shadow-sm border border-white/60">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl gradient-sky flex items-center justify-center shadow-md shadow-sky-500/20">
-            <Calculator className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold tracking-tight text-slate-800">Hasil Perhitungan SAW</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Peringkat perkembangan siswa berdasarkan Simple Additive Weighting</p>
-          </div>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Monitoring Hasil SAW (Sekolah)</h1>
+          <p className="text-sm text-slate-500 mt-1">Laporan rekapitulasi peringkat perkembangan seluruh siswa</p>
         </div>
-        <div className="mt-4 sm:mt-0 flex items-center gap-2">
-          <Button onClick={handleExportPDF} className="gradient-coral text-white rounded-xl shadow-md shadow-orange-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200 text-xs">
-            <FileDown className="w-4 h-4 mr-1.5" /> Export PDF
-          </Button>
-          <div className="flex items-center gap-2 bg-indigo-50/80 text-indigo-600 px-4 py-2 rounded-xl font-semibold text-xs border border-indigo-100/60">
-            <Calculator className="w-4 h-4" />
-            Otomatis
-          </div>
+        
+        <div className="flex gap-2">
+           <button
+            onClick={() => window.print()}
+            className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all shadow-sm"
+          >
+            <FileDown className="w-4 h-4" />
+            Cetak Laporan
+          </button>
+          <button
+            onClick={handleCalculateSAW}
+            disabled={isCalculating || !selectedClass}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-indigo-200"
+          >
+            <Calculator className={`w-4 h-4 ${isCalculating ? 'animate-spin' : ''}`} />
+            {isCalculating ? "Menghitung..." : "Kalkulasi Ulang"}
+          </button>
         </div>
       </div>
 
-      {/* Table Card */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-white/60 p-5 space-y-4">
-        <div className="flex flex-wrap gap-3 items-center">
-          <div className="w-72">
-            <Select value={selectedWeek} onValueChange={handleWeekChange}>
-              <SelectTrigger className="rounded-xl bg-slate-50/80">
-                <SelectValue placeholder="Pilih Minggu" />
-              </SelectTrigger>
-              <SelectContent>
-                {weeks.map(w => (
-                  <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-4 items-end mb-6">
+        <div className="space-y-1.5 flex-1 min-w-[200px]">
+          <label className="text-sm font-semibold text-slate-700">Filter Kelompok</label>
+          <select
+            value={selectedClass}
+            onChange={(e) => setSelectedClass(e.target.value)}
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm"
+          >
+            <option value="">Semua Kelompok / Kelas</option>
+            {classes.map(c => <option key={c.id} value={c.id}>Kelas {c.name}</option>)}
+          </select>
+        </div>
+        
+        <div className="space-y-1.5 w-48">
+          <label className="text-sm font-semibold text-slate-700">Periode</label>
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm"
+          >
+            {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
+        </div>
+
+        <div className="space-y-1.5 w-32">
+          <label className="text-sm font-semibold text-slate-700">Tahun</label>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm"
+          >
+            {[selectedYear - 1, selectedYear, selectedYear + 1].map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {message.text && (
+        <div className={`p-4 rounded-xl flex items-center gap-3 ${
+          message.type === "success" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-rose-50 text-rose-700 border border-rose-200"
+        }`}>
+          {message.type === "success" ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : <AlertCircle className="w-5 h-5 shrink-0" />}
+          <p className="font-medium text-sm">{message.text}</p>
+        </div>
+      )}
+
+      {/* Tabel Hasil Ranking */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[400px] relative">
+        {isLoading && (
+          <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-sm flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           </div>
-          <div className="w-64">
-            <Select value={selectedClass} onValueChange={setSelectedClass}>
-              <SelectTrigger className="rounded-xl bg-slate-50/80">
-                <SelectValue placeholder="Tampilkan Semua Kelas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Semua Kelompok / Kelas</SelectItem>
-                {classes.map(c => (
-                  <SelectItem key={c.id} value={c.id}>Kelompok {c.name}</SelectItem>
+        )}
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm text-slate-600">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-800 font-semibold">
+              <tr>
+                <th className="px-6 py-4 w-16 text-center">Rank</th>
+                <th className="px-6 py-4 min-w-[200px]">Nama Siswa</th>
+                {!selectedClass && <th className="px-6 py-4">Kelompok</th>}
+                {[1, 2, 3, 4, 5].map(w => (
+                  <th key={w} className="px-3 py-4 text-center border-l border-slate-200">W{w}</th>
                 ))}
-              </SelectContent>
-            </Select>
+                <th className="px-6 py-4 text-center border-l border-slate-200">Skor (V)</th>
+                <th className="px-6 py-4">Status SAW</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              <TooltipProvider>
+                {students
+                  .map(student => ({
+                    ...student,
+                    saw: results.find(r => r.studentId === student.id)
+                  }))
+                  .sort((a, b) => {
+                    const scoreA = a.saw?.totalScore || 0;
+                    const scoreB = b.saw?.totalScore || 0;
+                    return scoreB - scoreA;
+                  })
+                  .map((student, idx) => {
+                    const saw = student.saw;
+                    const rankInResults = results.findIndex(r => r.studentId === student.id);
+                    return (
+                      <tr key={student.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4 text-center">
+                          {saw ? (
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-auto border ${getRankStyle(idx)}`}>
+                              {idx === 0 ? <Trophy className="w-4 h-4" /> : idx + 1}
+                            </div>
+                          ) : (
+                            <span className="text-slate-300 text-xs">-</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-bold text-slate-900">{student.name}</div>
+                          <div className="text-[10px] text-slate-400">NIS: {student.nis}</div>
+                        </td>
+                        {!selectedClass && (
+                          <td className="px-6 py-4">
+                            <span className="px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 text-[10px] font-bold uppercase border border-indigo-100">
+                              {student.class?.name || student.classId}
+                            </span>
+                          </td>
+                        )}
+                        {[1, 2, 3, 4, 5].map(w => {
+                          const weekData = weeklyData[student.id]?.[w];
+                          return (
+                            <td key={w} className="px-3 py-4 text-center border-l border-slate-100">
+                              {weekData ? (
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    <span className="text-[11px] font-bold text-indigo-600 cursor-help underline decoration-indigo-200 decoration-2 underline-offset-4">
+                                      {weekData.total}
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="p-3 bg-slate-900 text-white">
+                                    <div className="space-y-1">
+                                      <p className="text-[10px] font-bold text-indigo-300 border-b border-white/10 pb-1 mb-1">Rincian Minggu {w}</p>
+                                      {Object.entries(weekData.scores).map(([code, score]) => (
+                                        <div key={code} className="flex justify-between gap-4">
+                                          <span className="text-[10px] text-slate-400">{code}</span>
+                                          <span className="text-[10px] font-bold">{score}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                <span className="text-slate-300">-</span>
+                              )}
+                            </td>
+                          );
+                        })}
+                        <td className="px-6 py-4 text-center border-l border-slate-100">
+                          {saw ? (
+                            <span className="font-mono font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-100 text-xs">
+                              {saw.totalScore.toFixed(3)}
+                            </span>
+                          ) : (
+                            <span className="text-slate-300 text-[10px]">TBA</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold border ${getStatusStyle(saw?.status)}`}>
+                            {saw ? saw.status.toUpperCase() : "BELUM DIHITUNG"}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </TooltipProvider>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Info & Legend Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Legend Card */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4 h-full">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <BookOpen className="w-4 h-4 text-indigo-500" />
+            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-tight">Legend Kriteria</h3>
           </div>
-          <div className="text-xs text-slate-400 font-medium">
-            Menampilkan {finalDisplay.length} siswa
+          <div className="space-y-2.5">
+            {criteria.map(c => (
+              <div key={c.id} className="flex gap-3 items-start group">
+                <span className="bg-indigo-50 text-indigo-600 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border border-indigo-100 shrink-0 mt-0.5">
+                  {c.code}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold text-slate-700 leading-none truncate group-hover:text-indigo-600 transition-colors">{c.name}</p>
+                  <p className="text-[9px] text-slate-400 mt-0.5">Bobot: {c.weight}%</p>
+                </div>
+              </div>
+            ))}
+            {criteria.length === 0 && (
+              <p className="text-[10px] text-slate-400 italic">Memuat kriteria...</p>
+            )}
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-100 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-slate-50/80 hover:bg-slate-50/80">
-                <TableHead className="w-20 text-center font-semibold text-xs uppercase tracking-wider text-slate-500">Peringkat</TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">NIS</TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">Nama Siswa</TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">Kelompok</TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">Skor Akhir</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {finalDisplay.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center py-12 text-slate-400">
-                    <div className="flex flex-col items-center gap-2">
-                      <Calculator className="w-8 h-8 text-slate-300" />
-                      <span>Tidak ada data penilaian</span>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                finalDisplay.map((row) => {
-                  const rankStyle = getRankStyle(row.displayRank)
-                  return (
-                    <TableRow key={row.studentId} className={`table-row-hover transition-colors ${row.displayRank <= 3 ? "bg-amber-50/20" : ""}`}>
-                      <TableCell className="text-center">
-                        {rankStyle ? (
-                          <div className={`mx-auto w-9 h-9 rounded-xl ${rankStyle.bg} ${rankStyle.text} flex items-center justify-center font-bold text-sm shadow-md ${rankStyle.shadow}`}>
-                            {row.displayRank === 1 ? <Trophy className="w-4 h-4" /> : row.displayRank}
-                          </div>
-                        ) : (
-                          <span className="text-sm font-semibold text-slate-400">{row.displayRank}</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-slate-500 font-mono text-sm">{row.nis}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-lg ${row.displayRank <= 3 ? 'gradient-primary' : 'bg-slate-100'} flex items-center justify-center text-xs font-bold ${row.displayRank <= 3 ? 'text-white shadow-sm' : 'text-slate-500'}`}>
-                            {row.name.charAt(0)}
-                          </div>
-                          <span className="font-medium text-slate-700">{row.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="inline-flex items-center rounded-lg bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-200/80">
-                          {classes.find(c => c.id === row.classId)?.name || row.classId}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden max-w-[100px]">
-                            <div
-                              className={`h-full rounded-full transition-all duration-700 ${row.displayRank <= 3 ? 'gradient-primary' : 'bg-slate-300'}`}
-                              style={{ width: `${(Number(row.score) / maxScore) * 100}%` }}
-                            />
-                          </div>
-                          <span className={`text-sm font-bold min-w-[48px] text-right ${row.displayRank <= 3 ? 'text-indigo-600' : 'text-slate-600'}`}>
-                            {row.score}
-                          </span>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              )}
-            </TableBody>
-          </Table>
+        {/* Algorithm Card */}
+        <div className="lg:col-span-3 bg-slate-900 rounded-2xl p-6 text-white overflow-hidden relative shadow-lg">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+              <div className="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-600/20">
+                <Calculator className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold">Transparansi Algoritma Admin (SAW)</h3>
+                <p className="text-xs text-indigo-300/80 font-medium">Simple Additive Weighting — Penilaian Objektif Multi-Besaran</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="space-y-3 relative group">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-[10px] font-bold border border-indigo-500/30">01</span>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">Aggregasi Bulanan</h4>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed pl-8">
+                  Sistem menarik seluruh input (0-100) dari guru (Agama, Fisik, Kognitif, dll) selama sebulan. Nilai-nilai ini dirata-ratakan untuk mendapatkan 1 skor tunggal per kriteria bagi tiap siswa.
+                </p>
+              </div>
+
+              <div className="space-y-3 relative overflow-hidden group">
+                 <div className="flex items-center gap-2.5">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">02</span>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">Normalisasi Matriks</h4>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed pl-8">
+                  Mengonversi nilai 0-100 ke skala **0 s/d 1**. Rumus: `Nilai / Nilai Maksimum` di kelas. 
+                  Contoh: Jika nilai tertinggi kelas adalah **100**, maka input **85** menjadi **0.85**. Ini memastikan perbandingan yang adil.
+                </p>
+              </div>
+
+              <div className="space-y-3 relative group">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold border border-amber-500/30">03</span>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">Weighted Sum (V)</h4>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed pl-8">
+                  Skor normal dikalikan **Bobot (%)** masing-masing kriteria. Hasil penjumlahan seluruh kriteria membentuk skor **V**. Siswa dengan skor **V** tertinggi menduduki peringkat satu di angkatannya.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/10 italic text-[10px] text-indigo-200/60 leading-relaxed">
+              <Info className="w-3 h-3 shrink-0" />
+              <span>Peringkat dihitung secara dinamis setiap kali tombol "Kalkulasi" ditekan guna mengakomodasi pembaruan nilai terbaru dari guru.</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

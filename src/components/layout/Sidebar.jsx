@@ -107,8 +107,8 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
           </div>
           {(!collapsed || isMobile) && (
             <div className="min-w-0">
-              <h1 className="text-lg font-bold text-white tracking-tight">Manajemen TK</h1>
-              <p className="text-[11px] text-indigo-200 font-medium">Sistem Penilaian Pintar</p>
+              <h1 className="text-lg font-bold text-white tracking-tight">TK Al-Islah</h1>
+              <p className="text-[11px] text-indigo-200 font-medium">Sistem Manajemen TK</p>
             </div>
           )}
           {/* Mobile close button */}

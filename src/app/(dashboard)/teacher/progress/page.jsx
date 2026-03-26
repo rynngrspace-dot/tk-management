@@ -1,245 +1,299 @@
-"use client"
-import { useState, useEffect } from "react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { TrendingUp, TrendingDown, Minus, BarChart3, FileDown, X, ChevronLeft, ChevronRight } from "lucide-react"
-import { getMockData, getAvailableWeeks, getAvailableMonths } from "@/lib/mock-data"
-import { calculateSAW } from "@/lib/saw"
-import { PrintReport } from "@/components/layout/PrintReport"
+"use client";
 
-export default function TeacherProgressPage() {
-  const [students, setStudents] = useState([])
-  const [allWeeks, setAllWeeks] = useState([])
-  const [months, setMonths] = useState([])
-  const [selectedMonth, setSelectedMonth] = useState("")
-  const [weeklyScores, setWeeklyScores] = useState({})
-  const [className, setClassName] = useState("")
-  const [showPrint, setShowPrint] = useState(false)
+import { useState, useEffect } from "react";
+import { Users, Calculator, FileText, CheckCircle2, AlertCircle, Medal, Calendar, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+const MONTHS = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
+
+export default function ProgressSummaryPage() {
+  const [classes, setClasses] = useState([]);
+  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState(MONTHS[new Date().getMonth()]);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  
+  const [userRole, setUserRole] = useState("");
+  const [students, setStudents] = useState([]);
+  const [results, setResults] = useState([]);
+  const [weeklyTotals, setWeeklyTotals] = useState({}); // { studentId: { week: { total, criteria: { code: score } } } }
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const name = localStorage.getItem("userName") || "Guru"
-    const data = getMockData()
-    const availableWeeks = getAvailableWeeks()
-    const availableMonths = getAvailableMonths()
-    setAllWeeks(availableWeeks)
-    setMonths(availableMonths)
+    const role = localStorage.getItem("userRole");
+    const teacherClassId = localStorage.getItem("classId");
+    setUserRole(role);
 
-    // Default to latest month
-    if (availableMonths.length > 0) setSelectedMonth(availableMonths[availableMonths.length - 1].value)
+    fetch("/api/classes")
+      .then(r => r.json())
+      .then(data => {
+        setClasses(data);
+        if (role === "teacher" && teacherClassId) {
+          setSelectedClass(teacherClassId);
+        } else if (data.length > 0) {
+          setSelectedClass(data[0].id);
+        }
+        setIsLoading(false);
+      });
+  }, []);
 
-    const teacher = data.teachers.find(t => t.name === name) || data.teachers[0]
-    if (teacher) {
-      const cls = data.classes.find(c => c.id === teacher.classId)
-      setClassName(cls ? cls.name : "")
-      const teacherStudents = data.students.filter(s => s.classId === teacher.classId)
-      setStudents(teacherStudents)
+  const fetchSummary = async () => {
+    if (!selectedClass) return;
+    setIsLoading(true);
+    try {
+      const period = `${selectedMonth} ${selectedYear}`;
+      
+      // Fetch Students in class
+      const studentsRes = await fetch(`/api/students?classId=${selectedClass}`);
+      const studentsData = await studentsRes.json();
+      setStudents(studentsData);
 
-      const scoreMap = {}
-      teacherStudents.forEach(s => { scoreMap[s.id] = {} })
-      availableWeeks.forEach(w => {
-        const results = calculateSAW(teacherStudents, data.criteria, data.assessments, w.value)
-        results.forEach(r => {
-          if (scoreMap[r.studentId]) scoreMap[r.studentId][w.value] = r.score
-        })
-      })
-      setWeeklyScores(scoreMap)
+      // Fetch SAW results
+      const sawRes = await fetch(`/api/saw?classId=${selectedClass}&period=${encodeURIComponent(period)}`);
+      const sawData = await sawRes.json();
+      setResults(sawData);
+
+      // Fetch all weekly progress for the class in this period to calculate W1-W5
+      const progRes = await fetch(`/api/progress?classId=${selectedClass}&month=${selectedMonth}&year=${selectedYear}`);
+      const progData = await progRes.json();
+      
+      const totals = {};
+      progData.forEach(p => {
+        const sId = p.studentId;
+        const week = p.week;
+        if (!totals[sId]) totals[sId] = {};
+        
+        const criteriaScores = {};
+        p.assessments.forEach(ass => {
+          criteriaScores[ass.criteria.code] = ass.score;
+        });
+
+        // Sum all assessment scores for this week
+        const weekTotal = p.assessments.reduce((sum, ass) => sum + (ass.score || 0), 0);
+        totals[sId][week] = {
+          total: weekTotal,
+          scores: criteriaScores
+        };
+      });
+      setWeeklyTotals(totals);
+
+    } catch (err) {
+      console.error("Failed to fetch summary:", err);
+    } finally {
+      setIsLoading(false);
     }
-  }, [])
+  };
 
-  // Filtered weeks for selected month
-  const filteredWeeks = allWeeks.filter(w => w.monthKey === selectedMonth)
-  const currentMonthObj = months.find(m => m.value === selectedMonth)
-  const currentMonthIdx = months.findIndex(m => m.value === selectedMonth)
+  useEffect(() => {
+    fetchSummary();
+  }, [selectedClass, selectedMonth, selectedYear]);
 
-  const prevMonth = () => {
-    if (currentMonthIdx > 0) setSelectedMonth(months[currentMonthIdx - 1].value)
-  }
-  const nextMonth = () => {
-    if (currentMonthIdx < months.length - 1) setSelectedMonth(months[currentMonthIdx + 1].value)
-  }
+  const getStatusStyle = (status) => {
+    if (!status) return "bg-slate-100 text-slate-400 border-slate-200";
+    if (status.includes("Sangat Baik")) return "bg-emerald-100 text-emerald-800 border-emerald-200";
+    if (status.includes("Sesuai Harapan")) return "bg-blue-100 text-blue-800 border-blue-200";
+    if (status.includes("Mulai Berkembang")) return "bg-amber-100 text-amber-800 border-amber-200";
+    return "bg-rose-100 text-rose-800 border-rose-200";
+  };
 
-  const getWeekTrend = (studentId, weekIdx) => {
-    if (weekIdx <= 0) return null
-    const curr = weeklyScores[studentId]?.[filteredWeeks[weekIdx].value]
-    const prev = weeklyScores[studentId]?.[filteredWeeks[weekIdx - 1].value]
-    if (curr == null || prev == null) return null
-    if (curr > prev) return "up"
-    if (curr < prev) return "down"
-    return "same"
-  }
+  const getSawResult = (studentId) => {
+    return results.find(r => r.studentId === studentId);
+  };
 
-  const getMonthlyProgress = (studentId) => {
-    if (filteredWeeks.length < 2) return null
-    const first = weeklyScores[studentId]?.[filteredWeeks[0].value]
-    const last = weeklyScores[studentId]?.[filteredWeeks[filteredWeeks.length - 1].value]
-    if (first == null || last == null) return null
-    const diff = last - first
-    const direction = diff > 0 ? "up" : diff < 0 ? "down" : "same"
-    const label = direction === "up" ? "Berkembang Baik" : direction === "down" ? "Perlu Perhatian" : "Stabil"
-    return { diff: diff.toFixed(1), direction, label }
-  }
-
-  const handleExportPDF = () => {
-    setShowPrint(true)
-    setTimeout(() => window.print(), 300)
+  if (isLoading && classes.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      {showPrint && (
-        <PrintReport title="Laporan Progres Perkembangan Mingguan" subtitle={`${className} — ${currentMonthObj?.label || ""}`} show={showPrint}>
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b-2 border-slate-800">
-                <th className="py-2 px-2 text-left font-bold">Nama</th>
-                {filteredWeeks.map(w => (
-                  <th key={w.value} className="py-2 px-2 text-center font-bold text-xs">{w.shortLabel}</th>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Ringkasan Progres Mingguan</h1>
+          <p className="text-sm text-slate-500 mt-1">Daftar perkembangan seluruh siswa berdasarkan input mingguan dan hasil SAW</p>
+        </div>
+        <div className="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl border border-indigo-100 flex items-center gap-2">
+          <Users className="w-4 h-4" />
+          <span className="text-sm font-semibold">{students.length} Siswa</span>
+        </div>
+      </div>
+
+      <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-4 items-end">
+        {userRole === "admin" && (
+          <div className="space-y-1.5 flex-1 min-w-[200px]">
+            <label className="text-sm font-semibold text-slate-700">Kelas</label>
+            <select
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm"
+            >
+              {classes.map(c => <option key={c.id} value={c.id}>Kelas {c.name}</option>)}
+            </select>
+          </div>
+        )}
+        
+        <div className="space-y-1.5 w-48">
+          <label className="text-sm font-semibold text-slate-700">Periode Bulan</label>
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm"
+          >
+            {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
+        </div>
+
+        <div className="space-y-1.5 w-32">
+          <label className="text-sm font-semibold text-slate-700">Tahun</label>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 text-sm"
+          >
+            {[selectedYear - 1, selectedYear, selectedYear + 1].map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative min-h-[400px]">
+        {isLoading && (
+          <div className="absolute inset-0 z-10 bg-white/50 backdrop-blur-sm flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          </div>
+        )}
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm text-slate-600">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-800">
+              <tr>
+                <th className="px-6 py-4 font-semibold w-16 text-center">No</th>
+                <th className="px-6 py-4 font-semibold min-w-[200px]">Nama Siswa</th>
+                {[1, 2, 3, 4, 5].map(w => (
+                  <th key={w} className="px-3 py-4 font-semibold text-center border-l border-slate-200 bg-slate-50/50">W{w}</th>
                 ))}
-                <th className="py-2 px-2 text-center font-bold">Perkembangan</th>
+                <th className="px-4 py-4 font-semibold text-center border-l border-slate-200">Skor Total (V)</th>
+                <th className="px-6 py-4 font-semibold">Keterangan (SAW)</th>
               </tr>
             </thead>
-            <tbody>
-              {students.map(s => {
-                const progress = getMonthlyProgress(s.id)
-                return (
-                  <tr key={s.id} className="border-b border-slate-200">
-                    <td className="py-2 px-2 font-medium">{s.name}</td>
-                    {filteredWeeks.map(w => (
-                      <td key={w.value} className="py-2 px-2 text-center">{weeklyScores[s.id]?.[w.value] ?? "-"}</td>
-                    ))}
-                    <td className="py-2 px-2 text-center font-bold">
-                      {progress ? `${progress.label} (${progress.direction === "up" ? "+" : ""}${progress.diff})` : "-"}
-                    </td>
-                  </tr>
-                )
-              })}
+            <tbody className="divide-y divide-slate-100">
+              <TooltipProvider>
+                {students.map((student, idx) => {
+                  const saw = getSawResult(student.id);
+                  return (
+                    <tr key={student.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-4 text-center text-slate-400 font-medium">
+                        {idx + 1}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-slate-900">{student.name}</div>
+                        <div className="text-[10px] text-slate-400">NIS: {student.nis}</div>
+                      </td>
+                      {[1, 2, 3, 4, 5].map(w => {
+                        const weekData = weeklyTotals[student.id]?.[w];
+                        return (
+                          <td key={w} className="px-3 py-4 text-center border-l border-slate-100/50">
+                            {weekData ? (
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md cursor-help hover:bg-indigo-100 transition-colors">
+                                    {weekData.total}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent className="p-3 bg-slate-900 text-white border-0 shadow-xl rounded-xl">
+                                  <div className="space-y-1.5">
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-300 border-b border-white/10 pb-1 mb-1">Breakdown Nilai W{w}</p>
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                      {Object.entries(weekData.scores).map(([code, score]) => (
+                                        <div key={code} className="flex justify-between items-center gap-3">
+                                          <span className="text-[10px] text-slate-400 font-mono">{code}:</span>
+                                          <span className="text-[10px] font-bold">{score}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              <span className="text-slate-300">-</span>
+                            )}
+                          </td>
+                        );
+                      })}
+                      <td className="px-4 py-4 text-center border-l border-slate-100">
+                        {saw ? (
+                          <div className="inline-block bg-indigo-50 px-2.5 py-1 rounded-lg text-indigo-700 font-mono font-bold text-xs border border-indigo-100">
+                            {saw.totalScore.toFixed(3)}
+                          </div>
+                        ) : (
+                          <span className="text-slate-300 text-xs">Belum dihitung</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold border ${getStatusStyle(saw?.status)}`}>
+                          {saw ? (
+                            <>
+                              <CheckCircle2 className="w-3 h-3" />
+                              {saw.status.toUpperCase()}
+                            </>
+                          ) : (
+                            <>
+                              <AlertCircle className="w-3 h-3" />
+                              BELUM ADA DATA
+                            </>
+                          )}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </TooltipProvider>
+              {students.length === 0 && !isLoading && (
+                <tr>
+                  <td colSpan={10} className="px-6 py-16 text-center">
+                    <div className="max-w-xs mx-auto">
+                      <FileText className="w-12 h-12 text-slate-200 mx-auto mb-3" />
+                      <h3 className="font-bold text-slate-700">Belum Ada Data Siswa</h3>
+                      <p className="text-slate-500 text-sm mt-1">
+                        Daftar siswa di kelas ini kosong.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
-          <button onClick={() => setShowPrint(false)} className="print:hidden mt-6 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-sm font-medium text-slate-700 transition-colors flex items-center gap-2 mx-auto">
-            <X className="w-4 h-4" /> Tutup Preview
-          </button>
-        </PrintReport>
-      )}
+        </div>
+      </div>
 
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/80 backdrop-blur-sm p-5 rounded-2xl shadow-sm border border-white/60">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-md shadow-indigo-500/20">
-            <BarChart3 className="w-5 h-5 text-white" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-start gap-4">
+          <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600">
+            <Info className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold tracking-tight text-slate-800">Progres Mingguan</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Perkembangan skor SAW siswa dari minggu ke minggu — {className}</p>
+            <h4 className="text-sm font-bold text-slate-800">Detail Nilai (Hover)</h4>
+            <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+              Arahkan kursor ke angka di kolom <b>W (Minggu)</b> untuk melihat rincian nilai tiap kriteria yang sudah diinput.
+            </p>
           </div>
         </div>
-        <Button onClick={handleExportPDF} className="mt-4 sm:mt-0 gradient-coral text-white rounded-xl shadow-md shadow-orange-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200 text-xs">
-          <FileDown className="w-4 h-4 mr-1.5" /> Export PDF
-        </Button>
-      </div>
-
-      {/* Month Navigation */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-white/60 p-4">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={prevMonth}
-            disabled={currentMonthIdx <= 0}
-            className={`p-2 rounded-xl transition-colors ${currentMonthIdx <= 0 ? "text-slate-300 cursor-not-allowed" : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"}`}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <div className="text-center">
-            <h3 className="text-lg font-bold text-slate-800">{currentMonthObj?.label || "-"}</h3>
-            <p className="text-xs text-slate-400 mt-0.5">{filteredWeeks.length} minggu penilaian</p>
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-start gap-4">
+          <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+            <Calculator className="w-5 h-5" />
           </div>
-          <button
-            onClick={nextMonth}
-            disabled={currentMonthIdx >= months.length - 1}
-            className={`p-2 rounded-xl transition-colors ${currentMonthIdx >= months.length - 1 ? "text-slate-300 cursor-not-allowed" : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"}`}
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
+          <div>
+            <h4 className="text-sm font-bold text-slate-800">Sinkronisasi SAW</h4>
+            <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+              Skor Total dan Keterangan muncul otomatis setelah Anda melakukan kalkulasi di menu <b>Hasil SAW</b>.
+            </p>
+          </div>
         </div>
-      </div>
-
-      {/* Progress Table */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-white/60 p-5 overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-50/80 hover:bg-slate-50/80">
-              <TableHead className="min-w-[160px] font-semibold text-xs uppercase tracking-wider text-slate-500">Siswa</TableHead>
-              {filteredWeeks.map(w => (
-                <TableHead key={w.value} className="text-center font-semibold text-xs uppercase tracking-wider text-slate-500 min-w-[100px]">
-                  <div>{w.shortLabel}</div>
-                  <div className="text-[10px] font-normal text-slate-400 normal-case">{w.label.match(/\((.+)\)/)?.[1] || ""}</div>
-                </TableHead>
-              ))}
-              <TableHead className="text-center font-semibold text-xs uppercase tracking-wider text-slate-500 min-w-[150px]">Perkembangan</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {students.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={filteredWeeks.length + 2} className="text-center py-12 text-slate-400">
-                  Tidak ada data
-                </TableCell>
-              </TableRow>
-            ) : (
-              students.map(student => {
-                const progress = getMonthlyProgress(student.id)
-                return (
-                  <TableRow key={student.id} className="table-row-hover transition-colors">
-                    <TableCell>
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg gradient-blue flex items-center justify-center text-white text-[11px] font-bold shadow-sm">
-                          {student.name.charAt(0)}
-                        </div>
-                        <div>
-                          <span className="font-medium text-sm text-slate-700 block">{student.name}</span>
-                          <span className="text-[10px] text-slate-400">NIS: {student.nis}</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    {filteredWeeks.map((w, weekIdx) => {
-                      const score = weeklyScores[student.id]?.[w.value]
-                      const trend = getWeekTrend(student.id, weekIdx)
-                      return (
-                        <TableCell key={w.value} className="text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            <span className={`text-sm font-bold ${
-                              score >= 90 ? "text-emerald-600" : score >= 80 ? "text-blue-600" : score >= 70 ? "text-amber-600" : "text-slate-600"
-                            }`}>
-                              {score != null ? score : "-"}
-                            </span>
-                            {trend === "up" && <TrendingUp className="w-3 h-3 text-emerald-500" />}
-                            {trend === "down" && <TrendingDown className="w-3 h-3 text-rose-500" />}
-                            {trend === "same" && <Minus className="w-3 h-3 text-slate-300" />}
-                          </div>
-                        </TableCell>
-                      )
-                    })}
-                    <TableCell className="text-center">
-                      {progress ? (
-                        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold ${
-                          progress.direction === "up" ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200/50" :
-                          progress.direction === "down" ? "bg-rose-50 text-rose-600 ring-1 ring-rose-200/50" :
-                          "bg-slate-50 text-slate-600 ring-1 ring-slate-200/50"
-                        }`}>
-                          {progress.direction === "up" ? <TrendingUp className="w-3.5 h-3.5" /> :
-                           progress.direction === "down" ? <TrendingDown className="w-3.5 h-3.5" /> :
-                           <Minus className="w-3.5 h-3.5" />}
-                          {progress.label}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-slate-400">-</span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                )
-              })
-            )}
-          </TableBody>
-        </Table>
       </div>
     </div>
-  )
+  );
 }

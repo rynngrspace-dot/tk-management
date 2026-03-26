@@ -43,6 +43,62 @@ model Student {
   allergies   String?
   classId     String
   class       Class     @relation(fields: [classId], references: [id])
+  weeklyProgress WeeklyProgress[]
+  sawResults     SawResult[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model Criteria {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  name      String
+  weight    Float
+  type      String   @default("benefit") // "benefit" | "cost"
+  assessments Assessment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WeeklyProgress {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  student   Student  @relation(fields: [studentId], references: [id])
+  week      Int      // e.g., 1, 2, 3, 4
+  month     String   // e.g., "Agustus"
+  year      Int      // e.g., 2026
+  note      String?  @db.Text
+  assessments Assessment[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // A student should only have one progress record per specific week
+  @@unique([studentId, week, month, year])
+}
+
+model Assessment {
+  id               Int            @id @default(autoincrement())
+  weeklyProgressId Int
+  weeklyProgress   WeeklyProgress @relation(fields: [weeklyProgressId], references: [id], onDelete: Cascade)
+  criteriaId       Int
+  criteria         Criteria       @relation(fields: [criteriaId], references: [id])
+  score            Float          // 1 (BB), 2 (MB), 3 (BSH), 4 (BSB)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  // Only one score per criteria per week
+  @@unique([weeklyProgressId, criteriaId])
+}
+
+model SawResult {
+  id         Int      @id @default(autoincrement())
+  studentId  Int
+  student    Student  @relation(fields: [studentId], references: [id])
+  period     String   // e.g., "Agustus 2026"
+  totalScore Float
+  status     String   // e.g., "Berkembang Sangat Baik"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([studentId, period])
 }

@@ -1,10 +1,21 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { getSession } from "@/lib/auth"
 
 export async function GET(request) {
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { searchParams } = new URL(request.url)
-    const classId = searchParams.get("classId")
+    let classId = searchParams.get("classId")
+
+    // If teacher, they can only see their own class
+    if (session.role === "teacher") {
+      classId = session.classId
+    }
 
     const filter = classId ? { classId } : {}
 
@@ -28,8 +39,18 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const session = await getSession()
+    if (!session || (session.role !== "admin" && session.role !== "teacher")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const data = await request.json()
     
+    // Safety check for teachers: they can only add to their class
+    if (session.role === "teacher" && data.classId !== session.classId) {
+       return NextResponse.json({ error: "Anda hanya bisa menambah siswa ke kelas Anda sendiri" }, { status: 403 })
+    }
+
     if (!data.name || !data.nis || !data.classId) {
       return NextResponse.json(
         { error: "Nama, NIS, dan Kelas harus diisi" },

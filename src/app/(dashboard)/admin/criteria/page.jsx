@@ -1,195 +1,273 @@
-"use client"
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
-import { Plus, Pencil, Trash2, AlertTriangle, ListChecks } from "lucide-react"
-import { getMockData } from "@/lib/mock-data"
-import { toast } from "sonner"
+"use client";
 
-export default function AdminCriteriaPage() {
-  const [criteria, setCriteria] = useState([])
-  const [isAddOpen, setIsAddOpen] = useState(false)
+import { useState, useEffect } from "react";
+import { Plus, Pencil, Trash2, X, AlertCircle } from "lucide-react";
+
+export default function CriteriaPage() {
+  const [criteria, setCriteria] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [error, setError] = useState("");
   
-  const [formData, setFormData] = useState({ id: "", name: "", weight: "", type: "benefit" })
+  const [formData, setFormData] = useState({
+    code: "",
+    name: "",
+    weight: "",
+    type: "benefit",
+  });
+
+  const fetchCriteria = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch("/api/criteria");
+      const data = await res.json();
+      setCriteria(data);
+    } catch (err) {
+      console.error("Failed to fetch criteria", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const data = getMockData()
-    setCriteria(data.criteria)
-  }, [])
+    fetchCriteria();
+  }, []);
 
-  const totalWeight = criteria.reduce((sum, c) => sum + Number(c.weight), 0)
-  const isWeightValid = Math.abs(totalWeight - 1.0) < 0.001
-
-  const handleSave = () => {
-    if (!formData.id || !formData.name || !formData.weight) {
-      toast.error("Semua field harus diisi!")
-      return
+  const handleOpenModal = (item = null) => {
+    if (item) {
+      setEditingId(item.id);
+      setFormData({
+        code: item.code,
+        name: item.name,
+        weight: item.weight,
+        type: item.type,
+      });
+    } else {
+      setEditingId(null);
+      setFormData({ code: "", name: "", weight: "", type: "benefit" });
     }
-    const newCriteria = { ...formData, weight: Number(formData.weight) }
-    setCriteria([...criteria, newCriteria])
-    setIsAddOpen(false)
-    setFormData({ id: "", name: "", weight: "", type: "benefit" })
-    toast.success("Kriteria berhasil ditambahkan")
-  }
+    setError("");
+    setIsModalOpen(true);
+  };
 
-  const handleDelete = (id) => {
-    setCriteria(criteria.filter(c => c.id !== id))
-    toast.success("Kriteria berhasil dihapus")
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const url = editingId ? `/api/criteria/${editingId}` : "/api/criteria";
+      const method = editingId ? "PUT" : "POST";
+      
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Gagal menyimpan kriteria");
+      }
+
+      setIsModalOpen(false);
+      fetchCriteria();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus kriteria ini?")) return;
+    try {
+      const res = await fetch(`/api/criteria/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Gagal menghapus kriteria");
+      fetchCriteria();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white/80 backdrop-blur-sm p-5 rounded-2xl shadow-sm border border-white/60">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl gradient-coral flex items-center justify-center shadow-md shadow-orange-500/20">
-            <ListChecks className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold tracking-tight text-slate-800">Manajemen Kriteria SAW</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Kelola aspek perkembangan yang akan dinilai</p>
-          </div>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Manajemen Kriteria SAW</h1>
+          <p className="text-sm text-slate-500 mt-1">Kelola kriteria, bobot, dan jenis untuk penilaian akhir</p>
         </div>
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger render={<Button className="mt-4 sm:mt-0 gradient-primary text-white rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200" />}>
-            <Plus className="w-4 h-4 mr-2" /> Tambah Kriteria
-          </DialogTrigger>
-          <DialogContent className="rounded-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-lg font-bold">Tambah Kriteria Penilaian</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Kode Kriteria (Misal: C1, C2)</Label>
-                <Input value={formData.id} onChange={e => setFormData({...formData, id: e.target.value})} placeholder="C6" className="rounded-xl" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Nama Aspek Perkembangan</Label>
-                <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Misal: Seni" className="rounded-xl" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Bobot (Total semua harus 1.0)</Label>
-                <Input type="number" step="0.05" min="0" max="1" value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} placeholder="0.2" className="rounded-xl" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Sifat Kriteria</Label>
-                <Select value={formData.type} onValueChange={v => setFormData({...formData, type: v})}>
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="benefit">Benefit (Makin tinggi makin baik)</SelectItem>
-                    <SelectItem value="cost">Cost (Makin rendah makin baik)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddOpen(false)} className="rounded-xl">Batal</Button>
-              <Button className="gradient-primary text-white rounded-xl" onClick={handleSave}>Simpan</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <button
+          onClick={() => handleOpenModal()}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          Tambah Kriteria
+        </button>
       </div>
 
-      {/* Weight Warning */}
-      {!isWeightValid && (
-        <div className="bg-rose-50/80 backdrop-blur-sm border border-rose-200/60 text-rose-700 px-5 py-4 rounded-2xl flex items-start gap-3">
-          <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center shrink-0 mt-0.5">
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
-          </div>
-          <div>
-            <p className="font-bold text-sm">Total Bobot Tidak Sama Dengan 1.0</p>
-            <p className="text-xs mt-0.5 text-rose-600">Total bobot saat ini adalah <strong>{totalWeight.toFixed(2)}</strong>. Perhitungan SAW memerlukan total bobot tepat 1.0 (100%).</p>
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm text-slate-600">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-800">
+              <tr>
+                <th className="px-6 py-4 font-semibold">Kode</th>
+                <th className="px-6 py-4 font-semibold">Nama Kriteria</th>
+                <th className="px-6 py-4 font-semibold">Bobot</th>
+                <th className="px-6 py-4 font-semibold">Jenis</th>
+                <th className="px-6 py-4 font-semibold text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {criteria.map((item) => (
+                <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-6 py-4 font-medium text-slate-900">{item.code}</td>
+                  <td className="px-6 py-4">{item.name}</td>
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {item.weight}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      item.type === 'benefit' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                    }`}>
+                      {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => handleOpenModal(item)}
+                        className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                        title="Edit"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                        title="Hapus"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {criteria.length === 0 && (
+                <tr>
+                  <td colSpan="5" className="px-6 py-8 text-center text-slate-500">
+                    Belum ada kriteria yang ditambahkan.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Modal Add/Edit */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+              <h2 className="text-lg font-bold text-slate-800">
+                {editingId ? "Edit Kriteria" : "Tambah Kriteria"}
+              </h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {error && (
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                  <p className="text-sm text-rose-600">{error}</p>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Kode Kriteria</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="C1"
+                  value={formData.code}
+                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Nama Kriteria</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Nilai Agama & Moral"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">Bobot (0 - 1)</label>
+                  <input
+                    type="number"
+                    required
+                    step="0.01"
+                    min="0"
+                    max="1"
+                    placeholder="0.2"
+                    value={formData.weight}
+                    onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-slate-700">Jenis</label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm bg-white"
+                  >
+                    <option value="benefit">Benefit</option>
+                    <option value="cost">Cost</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 shadow-sm shadow-indigo-200 transition-all cursor-pointer"
+                >
+                  {editingId ? "Simpan Perubahan" : "Simpan Kriteria"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
-
-      {/* Table Card */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-white/60 p-5 space-y-4">
-        <div className="rounded-xl border border-slate-100 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-slate-50/80 hover:bg-slate-50/80">
-                <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">Kode</TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">Aspek Perkembangan</TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">Sifat</TableHead>
-                <TableHead className="font-semibold text-xs uppercase tracking-wider text-slate-500">Bobot</TableHead>
-                <TableHead className="text-right font-semibold text-xs uppercase tracking-wider text-slate-500">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {criteria.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center text-slate-400 py-12">
-                    <div className="flex flex-col items-center gap-2">
-                      <ListChecks className="w-8 h-8 text-slate-300" />
-                      <span>Kriteria tidak ditemukan</span>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                criteria.map((crt) => (
-                  <TableRow key={crt.id} className="table-row-hover transition-colors">
-                    <TableCell>
-                      <span className="inline-flex items-center justify-center w-10 h-7 rounded-lg bg-indigo-50 text-xs font-bold text-indigo-600 ring-1 ring-inset ring-indigo-500/10">
-                        {crt.id}
-                      </span>
-                    </TableCell>
-                    <TableCell className="font-medium text-slate-700">{crt.name}</TableCell>
-                    <TableCell>
-                      <span className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${
-                        crt.type === 'benefit' 
-                          ? 'bg-emerald-50 text-emerald-600 ring-emerald-500/10' 
-                          : 'bg-rose-50 text-rose-600 ring-rose-500/10'
-                      }`}>
-                        {crt.type === 'benefit' ? '↑ Benefit' : '↓ Cost'}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden max-w-[80px]">
-                          <div 
-                            className="h-full rounded-full gradient-primary transition-all duration-500"
-                            style={{ width: `${Number(crt.weight) * 100}%` }}
-                          />
-                        </div>
-                        <span className="text-sm font-bold text-slate-700 w-10 text-right">
-                          {(Number(crt.weight) * 100).toFixed(0)}%
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => toast.info("Fitur Edit dipanggil")}>
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50" onClick={() => handleDelete(crt.id)}>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
-
-        {/* Total Weight Footer */}
-        {criteria.length > 0 && (
-          <div className={`flex items-center justify-between p-3 rounded-xl text-sm font-medium ${
-            isWeightValid 
-              ? 'bg-emerald-50/80 text-emerald-700 border border-emerald-100' 
-              : 'bg-amber-50/80 text-amber-700 border border-amber-100'
-          }`}>
-            <span>Total Bobot</span>
-            <span className="font-bold">{(totalWeight * 100).toFixed(0)}% / 100%</span>
-          </div>
-        )}
-      </div>
     </div>
-  )
+  );
 }
