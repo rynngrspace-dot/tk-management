@@ -24,32 +24,33 @@ export default function TeacherMyStudentsPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true)
-        const [resStudents, resClasses] = await Promise.all([
-          fetch("/api/students"),
-          fetch("/api/classes")
-        ])
         
-        if (!resStudents.ok || !resClasses.ok) throw new Error("Gagal mengambil data")
+        // 1. Fetch Teacher Profile to get Class Info
+        const resProfile = await fetch("/api/profile")
+        if (!resProfile.ok) throw new Error("Gagal mengambil profil")
+        const profile = await resProfile.json()
         
-        const dataStudents = await resStudents.json()
-        const dataClasses = await resClasses.json()
-        
-        setClasses(dataClasses)
-        
-        // Determine teacher's class based on localStorage
-        const assignedClassId = localStorage.getItem("classId")
-        
-        if (assignedClassId) {
-          setMyClassId(assignedClassId)
-          const assignedClass = dataClasses.find(c => c.id === assignedClassId)
-          if (assignedClass) {
-            setClassName(assignedClass.name)
-          }
+        if (profile.classId) {
+          setMyClassId(profile.classId)
+          setClassName(profile.class?.name || "Kelas Tidak Dikenal")
           
-          // Filter out students only belonging to this class
-          const filtered = dataStudents.filter(s => s.classId === assignedClassId)
-          setAllStudents(filtered)
+          // 2. Fetch Students for this class
+          // The API already filters by session for teachers, so we don't need classId param
+          // but we can pass it for clarity or if admin uses this page.
+          const resStudents = await fetch("/api/students")
+          if (!resStudents.ok) throw new Error("Gagal mengambil data siswa")
+          const dataStudents = await resStudents.json()
+          
+          setAllStudents(dataStudents)
+          
+          // Also fetch all classes for metadata if needed (already in profile but might need other classes)
+          const resClasses = await fetch("/api/classes")
+          if (resClasses.ok) {
+            setClasses(await resClasses.json())
+          }
         } else {
+          setMyClassId(null)
+          setClassName("Belum Ditugaskan")
           setAllStudents([])
         }
         

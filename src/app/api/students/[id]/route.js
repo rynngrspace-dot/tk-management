@@ -60,6 +60,21 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 })
     }
 
+    // Invincible Deletion: Manually clean up all relations in correct order
+    // 1. Delete all Assessments deeply linked to this student
+    await prisma.assessment.deleteMany({
+      where: {
+        weeklyProgress: { studentId: id }
+      }
+    })
+
+    // 2. Delete all WeeklyProgress records
+    await prisma.weeklyProgress.deleteMany({ where: { studentId: id } })
+
+    // 3. Delete all SawResults
+    await prisma.sawResult.deleteMany({ where: { studentId: id } })
+
+    // 4. Finally delete the Student
     await prisma.student.delete({
       where: { id },
     })

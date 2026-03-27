@@ -3,7 +3,8 @@ import prisma from "@/lib/prisma"
 
 export async function PUT(req, { params }) {
   try {
-    const id = parseInt(params.id)
+    const { id: paramId } = await params
+    const id = parseInt(paramId)
     const body = await req.json()
     const { code, name, weight, type } = body
 
@@ -29,7 +30,8 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const id = parseInt(params.id)
+    const { id: paramId } = await params
+    const id = parseInt(paramId)
     await prisma.criteria.delete({ where: { id } })
     return NextResponse.json({ success: true })
   } catch (error) {

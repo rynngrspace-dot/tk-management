@@ -51,27 +51,39 @@ export default function TeacherCalendarPage() {
   const today = new Date()
 
   useEffect(() => {
-    const name = localStorage.getItem("userName") || "Guru"
-    const data = getMockData()
-    const weeks = getAvailableWeeks()
-    setAssessmentWeeks(weeks.map(w => w.value))
+    const fetchInitialData = async () => {
+      try {
+        const resProf = await fetch("/api/profile")
+        if (!resProf.ok) throw new Error("Gagal mengambil profil")
+        const profile = await resProf.json()
+        
+        const weeks = getAvailableWeeks()
+        setAssessmentWeeks(weeks.map(w => w.value))
 
-    const teacher = data.teachers.find(t => t.name === name) || data.teachers[0]
-    if (teacher) {
-      setTeacherClassId(teacher.classId)
-      // Build attendance lookup: { "2026-03-24": { hadir: 2, sakit: 1, ... } }
-      const lookup = {}
-      data.attendanceRecords
-        .filter(r => r.teacherId === teacher.id)
-        .forEach(r => {
-          const summary = { hadir: 0, sakit: 0, izin: 0, alpha: 0 }
-          r.records.forEach(rec => {
-            if (summary[rec.status] !== undefined) summary[rec.status]++
-          })
-          lookup[r.date] = summary
-        })
-      setAttendanceDates(lookup)
+        if (profile.classId) {
+          setTeacherClassId(profile.classId)
+          
+          // Still using mock data for attendance lookup for now as API doesn't exist,
+          // but we derive the teacher ID from the real profile.
+          const data = getMockData()
+          const lookup = {}
+          data.attendanceRecords
+            .filter(r => r.teacherId === profile.id) // Use real profile ID
+            .forEach(r => {
+              const summary = { hadir: 0, sakit: 0, izin: 0, alpha: 0 }
+              r.records.forEach(rec => {
+                if (summary[rec.status] !== undefined) summary[rec.status]++
+              })
+              lookup[r.date] = summary
+            })
+          setAttendanceDates(lookup)
+        }
+      } catch (error) {
+        console.error(error)
+      }
     }
+    
+    fetchInitialData()
   }, [])
 
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1))

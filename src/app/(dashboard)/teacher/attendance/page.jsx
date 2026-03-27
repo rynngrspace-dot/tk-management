@@ -25,27 +25,39 @@ export default function TeacherAttendancePage() {
   const [attendance, setAttendance] = useState({})
 
   useEffect(() => {
-    const name = localStorage.getItem("userName") || "Guru"
-    const data = getMockData()
-    const teacher = data.teachers.find(t => t.name === name) || data.teachers[0]
-
-    if (teacher) {
-      const cls = data.classes.find(c => c.id === teacher.classId)
-      setClassName(cls ? cls.name : "Tanpa Kelompok")
-      const teacherStudents = data.students.filter(s => s.classId === teacher.classId)
-      setStudents(teacherStudents)
-
-      // Load existing attendance for selected date
-      const existing = data.attendanceRecords.find(
-        r => r.date === selectedDate && r.teacherId === teacher.id
-      )
-      const initial = {}
-      teacherStudents.forEach(s => {
-        const record = existing?.records?.find(r => r.studentId === s.id)
-        initial[s.id] = record?.status || ""
-      })
-      setAttendance(initial)
+    const fetchData = async () => {
+      try {
+        // 1. Fetch Profile
+        const resProf = await fetch("/api/profile")
+        if (!resProf.ok) throw new Error("Gagal mengambil profil")
+        const profile = await resProf.json()
+        
+        if (profile.classId) {
+          setClassName(profile.class?.name || "Kelas Tidak Dikenal")
+          
+          // 2. Fetch Real Students
+          const resStudents = await fetch("/api/students")
+          if (!resStudents.ok) throw new Error("Gagal mengambil data siswa")
+          const dataStudents = await resStudents.json()
+          setStudents(dataStudents)
+          
+          // 3. Initialize attendance (Mocking existing records for now as API doesn't exist yet)
+          const initial = {}
+          dataStudents.forEach(s => {
+            initial[s.id] = ""
+          })
+          setAttendance(initial)
+        } else {
+          setClassName("Belum Ditugaskan")
+          setStudents([])
+        }
+      } catch (error) {
+        console.error(error)
+        toast.error("Gagal memuat data absensi")
+      }
     }
+    
+    fetchData()
   }, [selectedDate])
 
   const handleStatusChange = (studentId, status) => {

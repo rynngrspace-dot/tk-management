@@ -9,6 +9,7 @@ import {
   ClipboardCheck,
   CalendarDays,
   BarChart3,
+  Clock,
 } from "lucide-react";
 
 export const adminNav = [
@@ -32,6 +33,7 @@ export const adminNav = [
       { name: "Hasil SAW", href: "/admin/saw-results", icon: FileText },
     ],
   },
+  { type: "link", name: "Log Aktivitas", href: "/admin/activities", icon: Clock },
 ];
 
 export const teacherNav = [

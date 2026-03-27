@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Save, AlertCircle, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 
 const WEEKS = [1, 2, 3, 4, 5];
 const MONTHS = [
@@ -31,24 +32,40 @@ export default function AssessmentPage() {
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    const role = localStorage.getItem("userRole");
-    const teacherClassId = localStorage.getItem("classId");
-    setUserRole(role);
-    
-    Promise.all([
-      fetch("/api/classes").then(r => r.json()),
-      fetch("/api/criteria").then(r => r.json())
-    ]).then(([classesData, criteriaData]) => {
-      setClasses(classesData);
-      setCriteria(criteriaData);
-      
-      if (role === "teacher" && teacherClassId) {
-        setSelectedClass(teacherClassId);
-      } else if (classesData.length > 0) {
-        setSelectedClass(classesData[0].id);
+    // 1. Fetch Teacher Profile and other metadata
+    const fetchInitialData = async () => {
+      try {
+        const [resProfile, resClasses, resCriteria] = await Promise.all([
+          fetch("/api/profile"),
+          fetch("/api/classes"),
+          fetch("/api/criteria")
+        ]);
+
+        if (!resProfile.ok || !resClasses.ok || !resCriteria.ok) throw new Error("Gagal mengambil data awal");
+
+        const profile = await resProfile.json();
+        const classesData = await resClasses.json();
+        const criteriaData = await resCriteria.json();
+
+        setClasses(classesData);
+        setCriteria(criteriaData);
+        setUserRole(profile.role);
+        
+        // Auto-select class based on profile
+        if (profile.role === "teacher" && profile.classId) {
+          setSelectedClass(profile.classId);
+        } else if (classesData.length > 0) {
+          setSelectedClass(classesData[0].id);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Gagal memuat data awal");
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    });
+    };
+
+    fetchInitialData();
   }, []);
 
   // Fetch Students & existing Progress when filters change

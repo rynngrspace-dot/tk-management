@@ -10,8 +10,15 @@ export default function TeacherDashboardPage() {
   const [teacherName, setTeacherName] = useState("")
 
   useEffect(() => {
-    setTeacherName(localStorage.getItem("userName") || "Guru")
-    
+    // 1. Fetch Profile for Name
+    fetch("/api/profile")
+      .then(res => res.json())
+      .then(user => {
+        setTeacherName(user.name || "Guru")
+      })
+      .catch(() => setTeacherName("Guru"))
+
+    // 2. Fetch Stats
     fetch("/api/admin/stats")
       .then(async res => {
         const json = await res.json()

@@ -63,7 +63,7 @@ model Criteria {
 model WeeklyProgress {
   id        Int      @id @default(autoincrement())
   studentId Int
-  student   Student  @relation(fields: [studentId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   week      Int      // e.g., 1, 2, 3, 4
   month     String   // e.g., "Agustus"
   year      Int      // e.g., 2026
@@ -93,7 +93,7 @@ model Assessment {
 model SawResult {
   id         Int      @id @default(autoincrement())
   studentId  Int
-  student    Student  @relation(fields: [studentId], references: [id])
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   period     String   // e.g., "Agustus 2026"
   totalScore Float
   status     String   // e.g., "Berkembang Sangat Baik"

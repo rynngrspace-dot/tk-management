@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Users, Calculator, FileText, CheckCircle2, AlertCircle, Medal, Calendar, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 const MONTHS = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -22,21 +23,34 @@ export default function ProgressSummaryPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const role = localStorage.getItem("userRole");
-    const teacherClassId = localStorage.getItem("classId");
-    setUserRole(role);
+    const fetchInitialData = async () => {
+      try {
+        const [resProfile, resClasses] = await Promise.all([
+          fetch("/api/profile"),
+          fetch("/api/classes")
+        ]);
 
-    fetch("/api/classes")
-      .then(r => r.json())
-      .then(data => {
-        setClasses(data);
-        if (role === "teacher" && teacherClassId) {
-          setSelectedClass(teacherClassId);
-        } else if (data.length > 0) {
-          setSelectedClass(data[0].id);
+        if (!resProfile.ok || !resClasses.ok) throw new Error("Gagal mengambil data");
+
+        const profile = await resProfile.json();
+        const classesData = await resClasses.json();
+
+        setClasses(classesData);
+        setUserRole(profile.role);
+
+        if (profile.role === "teacher" && profile.classId) {
+          setSelectedClass(profile.classId);
+        } else if (classesData.length > 0) {
+          setSelectedClass(classesData[0].id);
         }
+      } catch (error) {
+        console.error(error);
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+
+    fetchInitialData();
   }, []);
 
   const fetchSummary = async () => {

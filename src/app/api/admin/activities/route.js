@@ -5,68 +5,16 @@ import { getSession } from "@/lib/auth";
 export async function GET(req) {
   try {
     const session = await getSession();
-    console.log("Stats API Session:", session);
     
-    if (!session) {
-      console.log("Stats API: No session found");
+    if (!session || session.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const classId = searchParams.get("classId");
-    const role = session.role;
-
-    // Security: Teachers can only see their own class stats
-    const targetClassId = role === "teacher" ? session.classId : classId;
-    console.log("Stats API Role:", role, "TargetClassId:", targetClassId);
-
-    // If teacher has no class, don't throw 400, just return empty stats
-    if (role === "teacher" && !targetClassId) {
-      return NextResponse.json({
-        stats: { students: 0, teachers: 0, classes: 0, className: "Belum Ditugaskan", progressThisMonth: 0 },
-        activities: [],
-        warning: "Guru belum memiliki Kelompok/Kelas yang ditugaskan."
-      });
-    }
-
-    // Ensure targetClassId is string for filtering
-    const studentFilter = targetClassId ? { classId: String(targetClassId) } : {};
-    
-    // Monthly Progress Count
-    const now = new Date();
-    const currentMonth = now.toLocaleString('id-ID', { month: 'long' }); // e.g. "Agustus"
-    const currentYear = now.getFullYear();
-
-    const [studentsCount, teachersCount, classesCount, progressCount] = await Promise.all([
-      prisma.student.count({ where: studentFilter }),
-      prisma.user.count({ where: { role: "teacher" } }),
-      prisma.class.count(),
-      prisma.weeklyProgress.count({ 
-        where: { 
-          student: studentFilter,
-          month: currentMonth,
-          year: currentYear
-        } 
-      })
-    ]);
-
-    // 2. Class Info (for Teacher)
-    let classInfo = null;
-    if (targetClassId) {
-      classInfo = await prisma.class.findUnique({
-        where: { id: targetClassId },
-        select: { name: true }
-      });
-    }
-
-    // 3. Aggregate Recent Activities from Multiple Models
-    const activityFilter = targetClassId ? { student: { classId: targetClassId } } : {};
-    
-    // We'll fetch the most recent entries from Class, Student, User, and WeeklyProgress
+    // Fetch the most recent entries from Class, Student, User, and WeeklyProgress
+    // We'll take more than just the dashboard to show a full list
     const [recentProgress, recentStudents, recentClasses, recentUsers] = await Promise.all([
       prisma.weeklyProgress.findMany({
-        where: activityFilter,
-        take: 5,
+        take: 30,
         orderBy: { updatedAt: 'desc' },
         include: {
           student: {
@@ -83,18 +31,17 @@ export async function GET(req) {
         }
       }),
       prisma.student.findMany({
-        where: studentFilter,
-        take: 3,
+        take: 20,
         orderBy: { updatedAt: 'desc' },
         include: { class: { select: { name: true } } }
       }),
       prisma.class.findMany({
-        take: 3,
+        take: 20,
         orderBy: { updatedAt: 'desc' },
       }),
       prisma.user.findMany({
         where: { role: "teacher" },
-        take: 3,
+        take: 20,
         orderBy: { updatedAt: 'desc' },
       })
     ]);
@@ -139,21 +86,12 @@ export async function GET(req) {
       }))
     ]
     .sort((a, b) => b.time - a.time)
-    .slice(0, 8); // Keep only top 8 activities
+    .slice(0, 100); // Return up to 100 recent activities
 
-    return NextResponse.json({
-      stats: {
-        students: studentsCount,
-        teachers: teachersCount,
-        classes: classesCount,
-        className: classInfo?.name || null,
-        progressThisMonth: progressCount
-      },
-      activities
-    });
+    return NextResponse.json(activities);
 
   } catch (error) {
-    console.error("Stats API Error:", error);
+    console.error("Activities API Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

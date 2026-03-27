@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Calculator, AlertCircle, Medal, CheckCircle2, Info, Trophy, Users, BookOpen } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 const MONTHS = [
   "Januari", "Februari", "Maret", "April", "Mei", "Juni",
@@ -27,29 +28,31 @@ export default function SawResultsPage() {
   // Init Data (Classes, Role, Criteria)
   useEffect(() => {
     const init = async () => {
-      const role = localStorage.getItem("userRole");
-      const teacherClassId = localStorage.getItem("classId");
-      setUserRole(role);
-
       try {
-        const [clsRes, criRes] = await Promise.all([
+        const [profRes, clsRes, criRes] = await Promise.all([
+          fetch("/api/profile"),
           fetch("/api/classes"),
           fetch("/api/criteria")
         ]);
-        const [clsData, criData] = await Promise.all([
-          clsRes.json(),
-          criRes.json()
-        ]);
+        
+        if (!profRes.ok || !clsRes.ok || !criRes.ok) throw new Error("Gagal mengambil data awal");
+
+        const profData = await profRes.json();
+        const clsData = await clsRes.json();
+        const criData = await criRes.json();
+
+        setUserRole(profData.role);
         setClasses(clsData);
         setCriteria(criData);
         
-        if (role === "teacher" && teacherClassId) {
-          setSelectedClass(teacherClassId);
+        if (profData.role === "teacher" && profData.classId) {
+          setSelectedClass(profData.classId);
         } else if (clsData.length > 0) {
           setSelectedClass(clsData[0].id);
         }
       } catch (err) {
         console.error("Init error:", err);
+        toast.error("Gagal koordinasi dengan server");
       } finally {
         setIsLoading(false);
       }
