@@ -29,7 +29,7 @@ export async function POST(req) {
 
     // 2. Kumpulkan semua nilai assessment dari progress mingguan untuk kelas dan periode tsb
     const filterStudent = classId ? { classId: classId.toString() } : {}
-    
+
     const progressRecords = await prisma.weeklyProgress.findMany({
       where: {
         month: month.toString(),
@@ -52,7 +52,7 @@ export async function POST(req) {
     progressRecords.forEach(prog => {
       const sId = prog.studentId
       if (!studentTrack[sId]) studentTrack[sId] = { sums: {}, counts: {} }
-      
+
       prog.assessments.forEach(ass => {
         const cId = ass.criteriaId
         if (!studentTrack[sId].sums[cId]) {
@@ -73,7 +73,7 @@ export async function POST(req) {
         const sum = studentTrack[sId].sums[c.id] || 0
         const count = studentTrack[sId].counts[c.id] || 0
         const avg = count > 0 ? sum / count : 0
-        
+
         studentAverageScores[sId][c.id] = avg
 
         if (!cMaxMin[c.id]) cMaxMin[c.id] = { max: avg, min: avg }
@@ -90,9 +90,9 @@ export async function POST(req) {
         const raw = studentAverageScores[sId][c.id]
         let norm = 0
         if (c.type === "benefit") {
-           norm = cMaxMin[c.id].max > 0 ? raw / cMaxMin[c.id].max : 0
+          norm = cMaxMin[c.id].max > 0 ? raw / cMaxMin[c.id].max : 0
         } else {
-           norm = raw > 0 ? cMaxMin[c.id].min / raw : 0
+          norm = raw > 0 ? cMaxMin[c.id].min / raw : 0
         }
         normalized[sId][c.id] = norm
       })
