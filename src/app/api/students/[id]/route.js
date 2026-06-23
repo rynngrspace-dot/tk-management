@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import bcrypt from "bcryptjs"
 
 export async function PUT(request, { params }) {
   try {
@@ -41,6 +42,45 @@ export async function PUT(request, { params }) {
         class: true,
       }
     })
+
+    // Handle linked parent user updates/creation
+    const existingParent = await prisma.user.findFirst({
+      where: { studentId: id, role: "parent" }
+    })
+
+    if (existingParent) {
+      const updateData = {}
+      if (data.parentName) {
+        updateData.name = data.parentName
+      }
+      if (data.parentEmail) {
+        updateData.email = data.parentEmail.toLowerCase().trim()
+      }
+      if (data.parentPassword) {
+        updateData.password = await bcrypt.hash(data.parentPassword.toString().trim(), 10)
+      }
+      
+      if (Object.keys(updateData).length > 0) {
+        await prisma.user.update({
+          where: { id: existingParent.id },
+          data: updateData
+        })
+      }
+    } else if (data.parentEmail) {
+      // Create if it doesn't exist but email is provided
+      const parentEmailClean = data.parentEmail.toLowerCase().trim()
+      const defaultPassword = data.nis ? data.nis.toString().trim() : updatedStudent.nis.toString().trim()
+      const hashedPassword = await bcrypt.hash(defaultPassword, 10)
+      await prisma.user.create({
+        data: {
+          name: data.parentName || `Orang Tua ${updatedStudent.name}`,
+          email: parentEmailClean,
+          password: hashedPassword,
+          role: "parent",
+          studentId: id
+        }
+      })
+    }
 
     return NextResponse.json(updatedStudent)
   } catch (error) {

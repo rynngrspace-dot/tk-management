@@ -24,11 +24,9 @@ import { PrismaPg } from "@prisma/adapter-pg"
 const globalForPrisma = globalThis as any
 
 function createPrismaClient() {
-  const isProduction = process.env.NODE_ENV === "production"
-
-  const connectionString = isProduction
-    ? process.env.DATABASE_URL // 🔥 pakai pooler di Vercel
-    : process.env.DIRECT_URL   // 🔥 pakai direct di local
+  // Use DATABASE_URL (the pooler) by default as it is accessible locally and in production,
+  // falling back to DIRECT_URL if DATABASE_URL is not set.
+  const connectionString = process.env.DATABASE_URL || process.env.DIRECT_URL
 
   const adapter = new PrismaPg({
     connectionString,

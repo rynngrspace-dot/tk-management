@@ -15,15 +15,17 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     const userRole = localStorage.getItem("userRole")
     const username = localStorage.getItem("userName")
-    
+
     if (!userRole) {
       router.push("/login")
       return
     }
 
-    if (pathname.startsWith("/admin") && userRole !== "admin") {
+    if (pathname.startsWith("/dashboard/admin") && userRole !== "admin") {
       router.push("/login")
-    } else if (pathname.startsWith("/teacher") && userRole !== "teacher") {
+    } else if (pathname.startsWith("/dashboard/teacher") && userRole !== "teacher") {
+      router.push("/login")
+    } else if (pathname.startsWith("/dashboard/parent") && userRole !== "parent") {
       router.push("/login")
     } else {
       setRole(userRole)
@@ -54,9 +56,8 @@ export default function DashboardLayout({ children }) {
         onCloseMobile={() => setMobileSidebarOpen(false)}
       />
       <div
-        className={`p-4 md:p-6 lg:p-8 mt-14 h-[calc(100vh-3.5rem)] overflow-y-auto transition-all duration-300 ${
-          sidebarCollapsed ? "sm:ml-[4.5rem]" : "sm:ml-64"
-        }`}
+        className={`p-4 md:p-6 lg:p-8 mt-14 h-[calc(100vh-3.5rem)] overflow-y-auto transition-all duration-300 ${sidebarCollapsed ? "sm:ml-18" : "sm:ml-64"
+          }`}
       >
         <div className="animate-slide-up">
           {children}

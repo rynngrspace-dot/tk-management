@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs"
 import { PrismaClient } from "../src/generated/prisma/client.ts"
 import { PrismaPg } from "@prisma/adapter-pg"
 
-const adapter = new PrismaPg({ connectionString: process.env.DIRECT_URL })
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL || process.env.DIRECT_URL })
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
@@ -56,6 +56,19 @@ async function main() {
   })
   console.log(`✅ Guru 1: ${teacher1.email} (Ibu Nisa) assigned to class A`)
 
+  const teacherDemo = await prisma.user.upsert({
+    where: { email: "guru@tk.com" },
+    update: { password: hashedPassword, classId: "A" },
+    create: {
+      name: "Guru Siti",
+      email: "guru@tk.com",
+      password: hashedPassword,
+      role: "teacher",
+      classId: "A",
+    },
+  })
+  console.log(`✅ Demo Guru: ${teacherDemo.email} (Guru Siti) assigned to class A`)
+
   const teacher2 = await prisma.user.upsert({
     where: { email: "asep@tk.com" },
     update: { password: hashedPassword, classId: "B" },
@@ -85,6 +98,26 @@ async function main() {
     })
   }
   console.log(`✅ Seeded ${studentsToSeed.length} students`)
+
+  // Seed Parent
+  const student1 = await prisma.student.findUnique({
+    where: { nis: "1001" }
+  })
+
+  if (student1) {
+    const parent = await prisma.user.upsert({
+      where: { email: "ortu@tk.com" },
+      update: { password: hashedPassword, studentId: student1.id },
+      create: {
+        name: "Bapak Budi (Orang Tua)",
+        email: "ortu@tk.com",
+        password: hashedPassword,
+        role: "parent",
+        studentId: student1.id,
+      },
+    })
+    console.log(`✅ Parent: ${parent.email} (Bapak Budi) linked to student: ${student1.name}`)
+  }
 
   console.log("🎉 Seeding selesai!")
 }

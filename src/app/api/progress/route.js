@@ -25,7 +25,12 @@ export async function GET(req) {
     if (week) filters.week = parseInt(week)
     if (month) filters.month = month
     if (year) filters.year = parseInt(year)
-    if (studentId) filters.studentId = parseInt(studentId)
+    
+    if (session.role === "parent") {
+      filters.studentId = session.studentId
+    } else if (studentId) {
+      filters.studentId = parseInt(studentId)
+    }
     
     // Jika filter per kelas
     if (classId) {

@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -15,9 +15,11 @@ model User {
   name      String
   email     String   @unique
   password  String   // bcrypt hashed
-  role      String   // "admin" | "teacher"
+  role      String   // "admin" | "teacher" | "parent"
   classId   String?  // Optional, links teacher to a class
   class     Class?   @relation("ClassTeachers", fields: [classId], references: [id])
+  studentId Int?     // Optional, links parent to a student
+  student   Student? @relation("StudentParents", fields: [studentId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -45,6 +47,7 @@ model Student {
   class       Class     @relation(fields: [classId], references: [id])
   weeklyProgress WeeklyProgress[]
   sawResults     SawResult[]
+  parents     User[]    @relation("StudentParents")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }

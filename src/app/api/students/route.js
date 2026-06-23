@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 import { getSession } from "@/lib/auth"
+import bcrypt from "bcryptjs"
 
 export async function GET(request) {
   try {
@@ -17,12 +18,16 @@ export async function GET(request) {
       classId = session.classId
     }
 
-    const filter = classId ? { classId } : {}
+    let filter = classId ? { classId } : {}
+    if (session.role === "parent") {
+      filter = { id: session.studentId }
+    }
 
     const students = await prisma.student.findMany({
       where: filter,
       include: {
         class: true,
+        parents: true,
       },
       orderBy: { name: "asc" },
     })
@@ -86,6 +91,28 @@ export async function POST(request) {
         class: true,
       }
     })
+
+    // Automatically create parent account if requested
+    if (data.createParentAccount && data.parentEmail) {
+      const parentEmailClean = data.parentEmail.toLowerCase().trim()
+      
+      const existingUser = await prisma.user.findUnique({
+        where: { email: parentEmailClean }
+      })
+
+      if (!existingUser) {
+        const hashedPassword = await bcrypt.hash(data.nis.toString().trim(), 10)
+        await prisma.user.create({
+          data: {
+            name: data.parentName || `Orang Tua ${data.name}`,
+            email: parentEmailClean,
+            password: hashedPassword,
+            role: "parent",
+            studentId: newStudent.id
+          }
+        })
+      }
+    }
 
     return NextResponse.json(newStudent, { status: 201 })
   } catch (error) {

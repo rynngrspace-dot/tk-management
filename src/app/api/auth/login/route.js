@@ -46,6 +46,7 @@ export async function POST(request) {
       name: user.name,
       role: user.role,
       classId: user.classId,
+      studentId: user.studentId,
     })
 
     // Create response with user data
@@ -57,6 +58,7 @@ export async function POST(request) {
         email: user.email,
         role: user.role,
         classId: user.classId,
+        studentId: user.studentId,
       },
     })
 
@@ -67,8 +69,8 @@ export async function POST(request) {
   } catch (error) {
     console.error("Login error:", error)
     return NextResponse.json(
-      { 
-        error: "Terjadi kesalahan server",      
+      {
+        error: "Terjadi kesalahan server",
         details: error.message,
       },
       { status: 500 }

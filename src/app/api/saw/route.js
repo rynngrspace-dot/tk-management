@@ -17,7 +17,20 @@ export async function GET(req) {
 
     const filters = {}
     if (period) filters.period = period
-    if (classId) filters.student = { classId }
+    
+    if (session.role === "parent") {
+      const parentStudent = await prisma.student.findUnique({
+        where: { id: session.studentId },
+        select: { classId: true }
+      })
+      if (parentStudent) {
+        filters.student = { classId: parentStudent.classId }
+      } else {
+        return NextResponse.json([])
+      }
+    } else if (classId) {
+      filters.student = { classId }
+    }
 
     const results = await prisma.sawResult.findMany({
       where: filters,

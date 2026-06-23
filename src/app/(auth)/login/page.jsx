@@ -40,17 +40,25 @@ export default function LoginPage() {
         toast.success(`Berhasil login sebagai ${data.user.name}`);
         localStorage.setItem("userRole", data.user.role);
         localStorage.setItem("userName", data.user.name);
-        
+
         if (data.user.classId) {
           localStorage.setItem("classId", data.user.classId);
         } else {
           localStorage.removeItem("classId");
         }
 
-        if (data.user.role === "admin") {
-          router.push("/admin");
+        if (data.user.studentId) {
+          localStorage.setItem("studentId", data.user.studentId.toString());
         } else {
-          router.push("/teacher");
+          localStorage.removeItem("studentId");
+        }
+
+        if (data.user.role === "admin") {
+          router.push("/dashboard/admin");
+        } else if (data.user.role === "parent") {
+          router.push("/dashboard/parent");
+        } else {
+          router.push("/dashboard/teacher");
         }
       } else {
         toast.error(data.error || "Email atau password salah");
@@ -87,17 +95,17 @@ export default function LoginPage() {
               <span className="text-indigo-200 text-xl lg:text-2xl font-bold block mt-2 opacity-90 tracking-normal capitalize">Membangun Karakter Anak</span>
             </h1>
           </div>
-          
+
           <div className="space-y-6 max-w-md">
             <p className="text-indigo-100 text-sm lg:text-base font-medium leading-relaxed border-l-2 border-indigo-400/30 pl-4">
               Platform manajemen pendidikan yang berfokus pada melatih <span className="text-white font-bold decoration-indigo-300 underline underline-offset-4">motorik</span>, mengembangkan <span className="text-white font-bold decoration-indigo-300 underline underline-offset-4">kreativitas</span>, bahasa, sains dan numerasi anak.
             </p>
             <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl inline-block shadow-xl shadow-indigo-900/20">
-               <div className="text-xs lg:text-sm font-bold text-white flex items-center gap-2.5">
-                  <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)] animate-pulse" />
-                  Pilar Karakter & Praktik Ibadah
-               </div>
-               <p className="text-[10px] lg:text-xs text-indigo-100 mt-1.5 ml-4.5 opacity-80 leading-snug">Mengenal Nilai Agama dan Moral sejak dini.</p>
+              <div className="text-xs lg:text-sm font-bold text-white flex items-center gap-2.5">
+                <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)] animate-pulse" />
+                Pilar Karakter & Praktik Ibadah
+              </div>
+              <p className="text-[10px] lg:text-xs text-indigo-100 mt-1.5 ml-4.5 opacity-80 leading-snug">Mengenal Nilai Agama dan Moral sejak dini.</p>
             </div>
           </div>
         </div>

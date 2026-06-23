@@ -13,15 +13,16 @@ import {
 } from "lucide-react";
 
 export const adminNav = [
-  { type: "link", name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { type: "link", name: "Dashboard", href: "/dashboard/admin", icon: LayoutDashboard },
   {
     type: "group",
     label: "Data Master",
     icon: BookOpen,
     children: [
-      { name: "Siswa", href: "/admin/students", icon: Users },
-      { name: "Guru", href: "/admin/teachers", icon: GraduationCap },
-      { name: "Kelas", href: "/admin/classes", icon: BookOpen },
+      { name: "Siswa", href: "/dashboard/admin/students", icon: Users },
+      { name: "Orang Tua", href: "/dashboard/admin/parents", icon: Users },
+      { name: "Guru", href: "/dashboard/admin/teachers", icon: GraduationCap },
+      { name: "Kelas", href: "/dashboard/admin/classes", icon: BookOpen },
     ],
   },
   {
@@ -29,22 +30,22 @@ export const adminNav = [
     label: "Penilaian SAW",
     icon: Calculator,
     children: [
-      { name: "Kriteria", href: "/admin/criteria", icon: ListChecks },
-      { name: "Hasil SAW", href: "/admin/saw-results", icon: FileText },
+      { name: "Kriteria", href: "/dashboard/admin/criteria", icon: ListChecks },
+      { name: "Hasil SAW", href: "/dashboard/admin/saw-results", icon: FileText },
     ],
   },
-  { type: "link", name: "Log Aktivitas", href: "/admin/activities", icon: Clock },
+  { type: "link", name: "Log Aktivitas", href: "/dashboard/admin/activities", icon: Clock },
 ];
 
 export const teacherNav = [
-  { type: "link", name: "Dashboard", href: "/teacher", icon: LayoutDashboard },
+  { type: "link", name: "Dashboard", href: "/dashboard/teacher", icon: LayoutDashboard },
   {
     type: "group",
     label: "Siswa",
     icon: Users,
     children: [
-      { name: "Siswa Saya", href: "/teacher/my-students", icon: Users },
-      { name: "Absensi", href: "/teacher/attendance", icon: ClipboardCheck },
+      { name: "Siswa Saya", href: "/dashboard/teacher/my-students", icon: Users },
+      { name: "Absensi", href: "/dashboard/teacher/attendance", icon: ClipboardCheck },
     ],
   },
   {
@@ -52,10 +53,15 @@ export const teacherNav = [
     label: "Penilaian",
     icon: ListChecks,
     children: [
-      { name: "Kalender", href: "/teacher/calendar", icon: CalendarDays },
-      { name: "Input Nilai", href: "/teacher/assessment", icon: ListChecks },
-      { name: "Progres Mingguan", href: "/teacher/progress", icon: BarChart3 },
-      { name: "Hasil SAW", href: "/teacher/saw-results", icon: FileText },
+      { name: "Kalender", href: "/dashboard/teacher/calendar", icon: CalendarDays },
+      { name: "Input Nilai", href: "/dashboard/teacher/assessment", icon: ListChecks },
+      { name: "Progres Mingguan", href: "/dashboard/teacher/progress", icon: BarChart3 },
+      { name: "Hasil SAW", href: "/dashboard/teacher/saw-results", icon: FileText },
     ],
   },
+];
+
+export const parentNav = [
+  { type: "link", name: "Dashboard", href: "/dashboard/parent", icon: LayoutDashboard },
+  { type: "link", name: "Perkembangan Anak", href: "/dashboard/parent/child-progress", icon: BarChart3 },
 ];

@@ -8,7 +8,7 @@ import {
   LogOut,
   X,
 } from "lucide-react";
-import { adminNav, teacherNav } from "@/lib/navigation";
+import { adminNav, teacherNav, parentNav } from "@/lib/navigation";
 
 function SidebarGroup({ label, icon: Icon, children, pathname, collapsed }) {
   const isChildActive = children.some(
@@ -95,7 +95,7 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
     router.push("/login");
   };
 
-  const navItems = role === "admin" ? adminNav : teacherNav;
+  const navItems = role === "admin" ? adminNav : role === "parent" ? parentNav : teacherNav;
 
   const sidebarContent = (isMobile = false) => (
     <>
@@ -189,7 +189,7 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
           <>
             <div className="flex justify-center">
               <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center text-white font-bold text-xs">
-                {role === "admin" ? "A" : "G"}
+                {role === "admin" ? "A" : role === "parent" ? "O" : "G"}
               </div>
             </div>
             <button
@@ -206,10 +206,10 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
           <>
             <div className="flex items-center gap-3 px-3 py-2.5 rounded-md bg-white/10 backdrop-blur-sm">
               <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white font-bold text-xs">
-                {role === "admin" ? "A" : "G"}
+                {role === "admin" ? "A" : role === "parent" ? "O" : "G"}
               </div>
               <div>
-                <p className="text-xs font-semibold text-white capitalize">{role === "admin" ? "Administrator" : "Guru"}</p>
+                <p className="text-xs font-semibold text-white capitalize">{role === "admin" ? "Administrator" : role === "parent" ? "Orang Tua" : "Guru"}</p>
                 <p className="text-[10px] text-indigo-200">Aktif</p>
               </div>
               <div className="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />

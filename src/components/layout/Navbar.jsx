@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, Bell, UserCog, ChevronDown, ShieldCheck, GraduationCap, PanelLeftClose, PanelLeftOpen, Menu } from "lucide-react";
+import { LogOut, Bell, UserCog, ChevronDown, ShieldCheck, GraduationCap, PanelLeftClose, PanelLeftOpen, Menu, Users } from "lucide-react";
 
 export function Navbar({ userName, role, sidebarCollapsed, onToggleSidebar, onToggleMobileSidebar }) {
   const router = useRouter();
@@ -28,8 +28,15 @@ export function Navbar({ userName, role, sidebarCollapsed, onToggleSidebar, onTo
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const profilePath = "/profile";
-  const RoleIcon = role === "admin" ? ShieldCheck : GraduationCap;
+  const profilePath = "/dashboard/profile";
+  
+  const getRoleLabel = (r) => {
+    if (r === "admin") return "Administrator";
+    if (r === "parent") return "Orang Tua Murid";
+    return "Guru";
+  };
+
+  const RoleIcon = role === "admin" ? ShieldCheck : role === "parent" ? Users : GraduationCap;
 
   return (
     <nav className="fixed top-0 z-30 w-full glass-strong border-b border-white/40 shadow-b shadow-lg">
@@ -61,7 +68,7 @@ export function Navbar({ userName, role, sidebarCollapsed, onToggleSidebar, onTo
               </div>
               <div>
                 <p className="text-sm font-bold text-slate-800 leading-none">
-                  {role === "admin" ? "Administrator" : "Guru"}
+                  {getRoleLabel(role)}
                   <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-md bg-emerald-50 text-[10px] font-bold text-emerald-600 ring-1 ring-inset ring-emerald-500/10">
                     Aktif
                   </span>
@@ -94,7 +101,7 @@ export function Navbar({ userName, role, sidebarCollapsed, onToggleSidebar, onTo
                 </div>
                 <div className="hidden md:block text-left">
                   <p className="text-sm font-semibold text-slate-800 leading-none">{userName}</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Selamat Datang! 👋</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">{getRoleLabel(role)}</p>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-slate-400 hidden md:block transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
               </button>
@@ -103,7 +110,7 @@ export function Navbar({ userName, role, sidebarCollapsed, onToggleSidebar, onTo
                 <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg shadow-slate-200/50 border border-slate-100 py-1.5 z-50">
                   <div className="px-3 py-2 border-b border-slate-100 mb-1">
                     <p className="text-sm font-semibold text-slate-800">{userName}</p>
-                    <p className="text-xs text-slate-400 capitalize">{role === "admin" ? "Administrator" : "Guru"}</p>
+                    <p className="text-xs text-slate-400">{getRoleLabel(role)}</p>
                   </div>
                   <button
                     onClick={() => { setDropdownOpen(false); router.push(profilePath); }}
