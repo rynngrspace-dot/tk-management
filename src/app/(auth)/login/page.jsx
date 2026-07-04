@@ -153,7 +153,7 @@ export default function LoginPage() {
                     className="h-11 rounded-xl bg-slate-50/80 border-slate-200 focus:border-indigo-400 focus:bg-white transition-all duration-200"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 mb-5">
                   <Label htmlFor="password" className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Password</Label>
                   <div className="relative">
                     <Input

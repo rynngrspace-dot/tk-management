@@ -11,13 +11,14 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const sawResults = await prisma.sawResult.findMany({
+  const students = await prisma.student.findMany({
     include: {
-      student: true
+      class: true,
+      parents: true
     }
   });
-  console.log("=== SAW RESULTS ===");
-  console.log(JSON.stringify(sawResults, null, 2));
+  console.log("=== STUDENTS ===");
+  console.log(JSON.stringify(students, null, 2));
   
   await prisma.$disconnect();
   await pool.end();

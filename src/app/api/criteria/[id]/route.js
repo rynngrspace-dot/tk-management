@@ -8,12 +8,34 @@ export async function PUT(req, { params }) {
     const body = await req.json()
     const { code, name, weight, type } = body
 
+    let weightVal = undefined
+    if (weight !== undefined) {
+      weightVal = parseFloat(weight)
+      if (isNaN(weightVal) || weightVal < 0 || weightVal > 1) {
+        return NextResponse.json({ error: "Bobot harus berupa angka antara 0 dan 1" }, { status: 400 })
+      }
+
+      // Get other criteria to check total weight
+      const otherCriteria = await prisma.criteria.findMany({
+        where: { id: { not: id } }
+      })
+      const otherTotal = otherCriteria.reduce((sum, c) => sum + (c.weight || 0), 0)
+
+      if (otherTotal + weightVal > 1.0001) {
+        const remaining = Math.max(0, 1.00 - otherTotal)
+        return NextResponse.json(
+          { error: `Total bobot melebihi 1.00. Sisa bobot yang tersedia adalah ${remaining.toFixed(2)}` },
+          { status: 400 }
+        )
+      }
+    }
+
     const updated = await prisma.criteria.update({
       where: { id },
       data: {
         ...(code && { code }),
         ...(name && { name }),
-        ...(weight !== undefined && { weight: parseFloat(weight) }),
+        ...(weightVal !== undefined && { weight: weightVal }),
         ...(type && { type }),
       }
     })
