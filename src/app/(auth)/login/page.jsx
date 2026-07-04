@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Sparkles, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -80,11 +80,11 @@ export default function LoginPage() {
         <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-indigo-400/20 rounded-full animate-blob" style={{ animationDelay: "4s" }} />
 
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-4 mb-2">
+            <div className="w-16 h-16 flex items-center justify-center overflow-hidden">
+              <img src="/assets/images/tklogo.png" alt="Logo TK Al Islah" className="w-full h-full object-contain" />
             </div>
-            <span className="text-white/80 text-sm font-medium">Sistem Manajemen TK Al Islah</span>
+            <span className="text-white/80 text-base font-semibold">Sistem Manajemen TK Al Islah</span>
           </div>
         </div>
 
@@ -124,8 +124,8 @@ export default function LoginPage() {
         <div className="w-full max-w-[420px] animate-scale-in relative z-10">
           {/* Mobile Header */}
           <div className="lg:hidden text-center mb-8">
-            <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/20">
-              <Sparkles className="w-7 h-7 text-white" />
+            <div className="w-24 h-24 flex items-center justify-center mx-auto mb-4 overflow-hidden">
+              <img src="/assets/images/tklogo.png" alt="Logo TK Al Islah" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-2xl font-bold gradient-text">TK Al Islah</h1>
           </div>

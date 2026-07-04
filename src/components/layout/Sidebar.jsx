@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Sparkles,
   ChevronDown,
   LogOut,
   X,
@@ -102,8 +101,8 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
       {/* Logo Section */}
       <div className={`border-b border-white/10 ${collapsed && !isMobile ? "px-3 py-6" : "px-5 py-6"}`}>
         <div className={`flex items-center ${collapsed && !isMobile ? "justify-center" : "gap-3"}`}>
-          <div className={`${collapsed && !isMobile ? "w-9 h-9" : "w-10 h-10"} rounded-md bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0`}>
-            <Sparkles className={`${collapsed && !isMobile ? "w-4 h-4" : "w-5 h-5"} text-white`} />
+          <div className={`${collapsed && !isMobile ? "w-10 h-10" : "w-14 h-14"} flex items-center justify-center flex-shrink-0 overflow-hidden`}>
+            <img src="/assets/images/tklogo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           {(!collapsed || isMobile) && (
             <div className="min-w-0">
