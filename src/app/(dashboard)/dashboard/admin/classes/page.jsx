@@ -21,7 +21,7 @@ export default function AdminClassesPage() {
   const [classes, setClasses] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
+
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedClass, setSelectedClass] = useState(null)
 
@@ -64,7 +64,7 @@ export default function AdminClassesPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Gagal menghapus kelas")
-      
+
       toast.success("Kelas berhasil dihapus")
       setIsDeleteDialogOpen(false)
       fetchClasses()
@@ -90,7 +90,7 @@ export default function AdminClassesPage() {
             <p className="text-xs text-slate-500 mt-0.5">Daftar kelompok belajar di TK Al Islah</p>
           </div>
         </div>
-        <Button 
+        <Button
           onClick={handleOpenAdd}
           className="mt-4 sm:mt-0 gradient-primary text-white rounded-xl shadow-md shadow-indigo-500/20 hover:shadow-lg hover:opacity-95 transition-all duration-200 cursor-pointer"
         >
@@ -104,13 +104,13 @@ export default function AdminClassesPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl font-bold text-slate-800">Hapus Kelas?</AlertDialogTitle>
             <AlertDialogDescription className="text-slate-500">
-              Apakah Anda yakin ingin menghapus kelas <span className="font-bold text-slate-700">{selectedClass?.name}</span>? 
+              Apakah Anda yakin ingin menghapus kelas <span className="font-bold text-slate-700">{selectedClass?.name}</span>?
               Tindakan ini tidak dapat dibatalkan.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="rounded-xl h-11">Batal</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault()
                 handleDelete()
@@ -158,7 +158,7 @@ export default function AdminClassesPage() {
                     const assignedTeacher = cls.teachers?.[0]
                     const studentCount = cls._count?.students || 0
                     const colorClass = classColors[idx % classColors.length]
-                    
+
                     return (
                       <TableRow key={cls.id} className="table-row-hover transition-colors">
                         <TableCell>
@@ -189,18 +189,18 @@ export default function AdminClassesPage() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-9 w-9 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
                               onClick={() => handleOpenEdit(cls)}
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-9 w-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all"
                               onClick={() => confirmDelete(cls)}
                             >
                               <Trash2 className="h-4 w-4" />

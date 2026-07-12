@@ -9,7 +9,6 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { id: oldId } = await params
     const { id: newId, name } = await req.json()
 
     if (!newId || !name) {
@@ -19,7 +18,7 @@ export async function PUT(req, { params }) {
     // Update the class. Note: If changing ID, Prisma handles relation updates if configured, 
     // but usually it's better to just update name if ID is the primary key.
     // However, if the user wants to change "A" to "A1", we should handle it.
-    
+
     const updatedClass = await prisma.class.update({
       where: { id: oldId },
       data: { id: newId, name }
@@ -59,8 +58,8 @@ export async function DELETE(req, { params }) {
     }
 
     if (classCheck._count.students > 0 || classCheck._count.teachers > 0) {
-      return NextResponse.json({ 
-        error: "Kelas tidak bisa dihapus karena masih memiliki siswa atau guru. Kosongkan kelas terlebih dahulu." 
+      return NextResponse.json({
+        error: "Kelas tidak bisa dihapus karena masih memiliki siswa atau guru. Kosongkan kelas terlebih dahulu."
       }, { status: 400 })
     }
 

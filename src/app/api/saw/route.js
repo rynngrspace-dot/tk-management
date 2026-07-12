@@ -35,15 +35,15 @@ export async function GET(req) {
     const results = await prisma.sawResult.findMany({
       where: filters,
       include: {
-      student: { 
-        select: { 
-          id: true, 
-          name: true, 
-          nis: true, 
-          classId: true,
-          class: { select: { name: true } }
-        } 
-      }
+        student: { 
+          select: { 
+            id: true, 
+            name: true, 
+            nis: true, 
+            classId: true,
+            class: { select: { name: true } }
+          } 
+        }
       },
       orderBy: { totalScore: 'desc' }
     })

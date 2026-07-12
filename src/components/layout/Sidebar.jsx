@@ -134,10 +134,11 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
                   key={item.label}
                   label={item.label}
                   icon={item.icon}
-                  children={item.children}
                   pathname={pathname}
                   collapsed={collapsed && !isMobile}
-                />
+                >
+                  {item.children}
+                </SidebarGroup>
               );
             }
             const isActive = pathname === item.href;

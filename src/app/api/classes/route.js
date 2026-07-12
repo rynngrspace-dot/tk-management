@@ -24,6 +24,7 @@ export async function GET() {
         }
       }
     })
+
     return NextResponse.json(classes)
   } catch (error) {
     console.error("Failed to fetch classes:", error)
