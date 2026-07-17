@@ -87,7 +87,7 @@ export default function AdminClassesPage() {
           </div>
           <div>
             <h2 className="text-xl font-bold tracking-tight text-slate-800">Manajemen Kelas</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Daftar kelompok belajar di TK Al Islah</p>
+            <p className="text-xs text-slate-500 mt-0.5">Daftar kelompok belajar di TK Al Ishlah</p>
           </div>
         </div>
         <Button

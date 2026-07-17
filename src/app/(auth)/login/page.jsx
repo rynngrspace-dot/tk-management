@@ -82,23 +82,23 @@ export default function LoginPage() {
         <div className="relative z-10">
           <div className="flex items-center gap-4 mb-2">
             <div className="w-16 h-16 flex items-center justify-center overflow-hidden">
-              <img src="/assets/images/tklogo.png" alt="Logo TK Al Islah" className="w-full h-full object-contain" />
+              <img src="/assets/images/tklogo.png" alt="Logo TK Al Ishlah" className="w-full h-full object-contain" />
             </div>
-            <span className="text-white/80 text-base font-semibold">Sistem Manajemen TK Al Islah</span>
+            <span className="text-white/80 text-base font-semibold">Sistem Manajemen TK Al Ishlah</span>
           </div>
         </div>
 
         <div className="relative z-10 space-y-8">
           <div className="space-y-3">
             <h1 className="text-3xl lg:text-5xl font-black text-white leading-tight tracking-tighter uppercase">
-              TK Al Islah
+              TK Al Ishlah
               <span className="text-indigo-200 text-xl lg:text-2xl font-bold block mt-2 opacity-90 tracking-normal capitalize">Membangun Karakter Anak</span>
             </h1>
           </div>
 
           <div className="space-y-6 max-w-md">
             <p className="text-indigo-100 text-sm lg:text-base font-medium leading-relaxed border-l-2 border-indigo-400/30 pl-4">
-              Platform manajemen pendidikan yang berfokus pada melatih <span className="text-white font-bold decoration-indigo-300 underline underline-offset-4">motorik</span>, mengembangkan <span className="text-white font-bold decoration-indigo-300 underline underline-offset-4">kreativitas</span>, bahasa, sains dan numerasi anak.
+              Platform manajemen pendidikan yang berfokus pada melatih <span className="text-white font-bold decoration-indigo-300 underline underline-offset-4">motorik</span>, developing <span className="text-white font-bold decoration-indigo-300 underline underline-offset-4">kreativitas</span>, bahasa, sains dan numerasi anak.
             </p>
             <div className="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl inline-block shadow-xl shadow-indigo-900/20">
               <div className="text-xs lg:text-sm font-bold text-white flex items-center gap-2.5">
@@ -111,7 +111,7 @@ export default function LoginPage() {
         </div>
 
         <div className="relative z-10">
-          <p className="text-indigo-300 text-xs">© 2026 TK Al Islah. Hak Cipta Dilindungi.</p>
+          <p className="text-indigo-300 text-xs">© 2026 TK Al Ishlah. Hak Cipta Dilindungi.</p>
         </div>
       </div>
 
@@ -125,9 +125,9 @@ export default function LoginPage() {
           {/* Mobile Header */}
           <div className="lg:hidden text-center mb-8">
             <div className="w-24 h-24 flex items-center justify-center mx-auto mb-4 overflow-hidden">
-              <img src="/assets/images/tklogo.png" alt="Logo TK Al Islah" className="w-full h-full object-contain" />
+              <img src="/assets/images/tklogo.png" alt="Logo TK Al Ishlah" className="w-full h-full object-contain" />
             </div>
-            <h1 className="text-2xl font-bold gradient-text">TK Al Islah</h1>
+            <h1 className="text-2xl font-bold gradient-text">TK Al Ishlah</h1>
           </div>
 
           <Card className="shadow-xl shadow-indigo-500/5 border-0 bg-white/80 backdrop-blur-sm">

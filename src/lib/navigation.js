@@ -54,8 +54,8 @@ export const teacherNav = [
     icon: ListChecks,
     children: [
       { name: "Kalender", href: "/dashboard/teacher/calendar", icon: CalendarDays },
-      { name: "Input Nilai", href: "/dashboard/teacher/assessment", icon: ListChecks },
       { name: "Progres Mingguan", href: "/dashboard/teacher/progress", icon: BarChart3 },
+      { name: "Input Nilai", href: "/dashboard/teacher/assessment", icon: ListChecks },
       { name: "Hasil SAW", href: "/dashboard/teacher/saw-results", icon: FileText },
     ],
   },

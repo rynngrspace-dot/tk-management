@@ -8,7 +8,12 @@ export function Navbar({ userName, role, sidebarCollapsed, onToggleSidebar, onTo
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (err) {
+      console.error("Logout request failed:", err);
+    }
     localStorage.removeItem("userRole");
     localStorage.removeItem("userName");
     router.push("/login");

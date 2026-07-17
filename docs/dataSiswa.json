@@ -1,0 +1,582 @@
+[
+    {
+        "no": 1,
+        "nama": "PUPI NUR HASANAH",
+        "tgl_lahir": "2019-10-23",
+        "jenis_kelamin": "P",
+        "nik": "3205206310190001",
+        "nisn": "3190769359",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 2,
+        "nama": "MUHAMMAD AZAM NURWAHID",
+        "tgl_lahir": "2019-11-15",
+        "jenis_kelamin": "L",
+        "nik": "3205201511190001",
+        "nisn": "3199293211",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 3,
+        "nama": "ASALINA YUMNA NALADIPA",
+        "tgl_lahir": "2019-10-22",
+        "jenis_kelamin": "P",
+        "nik": "3205206210190005",
+        "nisn": "3198942718",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 4,
+        "nama": "HUSNI MUHAMAD TAMRIN",
+        "tgl_lahir": "2019-07-11",
+        "jenis_kelamin": "L",
+        "nik": "3205201107190001",
+        "nisn": "3190202145",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 5,
+        "nama": "AKHSANUL HAMIZAN RABBANI",
+        "tgl_lahir": "2019-12-07",
+        "jenis_kelamin": "L",
+        "nik": "3205200712190001",
+        "nisn": "3198299633",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 6,
+        "nama": "FAISAL NUGRAHA",
+        "tgl_lahir": "2018-11-27",
+        "jenis_kelamin": "L",
+        "nik": "3205202711180002",
+        "nisn": "3185226686",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 7,
+        "nama": "SEKAR DEWI KOMARIAH",
+        "tgl_lahir": "2019-08-14",
+        "jenis_kelamin": "P",
+        "nik": "3205205408190006",
+        "nisn": "3198063751",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 8,
+        "nama": "TISYA MARSYA ALPATUNISSA",
+        "tgl_lahir": "2019-06-23",
+        "jenis_kelamin": "P",
+        "nik": "3205206306190001",
+        "nisn": "3194064980",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 9,
+        "nama": "M DANIYAL MAHESA LAIS AL HAYTHAMI",
+        "tgl_lahir": "2020-05-17",
+        "jenis_kelamin": "L",
+        "nik": "3205201705200005",
+        "nisn": "3204676516",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 10,
+        "nama": "MUHAMAD SAHRUL AL GIFARI",
+        "tgl_lahir": "2019-06-22",
+        "jenis_kelamin": "L",
+        "nik": "3205202206190003",
+        "nisn": "3192733629",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 11,
+        "nama": "MUHAMAD IRDAN AL-HAFSI",
+        "tgl_lahir": "2019-04-24",
+        "jenis_kelamin": "L",
+        "nik": "3205202404190002",
+        "nisn": "3197492853",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 12,
+        "nama": "SURYA NUGRAHA",
+        "tgl_lahir": "2019-01-07",
+        "jenis_kelamin": "L",
+        "nik": "3205200701190004",
+        "nisn": "3192207933",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 13,
+        "nama": "TSAMROTUS SA'ADAH",
+        "tgl_lahir": "2019-04-11",
+        "jenis_kelamin": "P",
+        "nik": "3205205104190004",
+        "nisn": "3197582773",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 14,
+        "nama": "MUHAMAD AZAM NUGRAHA",
+        "tgl_lahir": "2019-11-22",
+        "jenis_kelamin": "L",
+        "nik": "3205202211190001",
+        "nisn": "3197184730",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 15,
+        "nama": "SAUQY GALAXY FIRDAUS",
+        "tgl_lahir": "2019-06-04",
+        "jenis_kelamin": "L",
+        "nik": "3205010106190003",
+        "nisn": "3198724595",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 16,
+        "nama": "KANZA APRILIA",
+        "tgl_lahir": "2019-04-28",
+        "jenis_kelamin": "P",
+        "nik": "3205206804190002",
+        "nisn": "3191897404",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 17,
+        "nama": "SALSA ANINDITA ADISTIA",
+        "tgl_lahir": "2019-03-19",
+        "jenis_kelamin": "P",
+        "nik": "3205205903190004",
+        "nisn": "3197058026",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 18,
+        "nama": "SYAFIQ M SADIDUL AZMI",
+        "tgl_lahir": "2019-07-11",
+        "jenis_kelamin": "L",
+        "nik": "3205201107190003",
+        "nisn": "3196163968",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 19,
+        "nama": "RANGGI ROSADI",
+        "tgl_lahir": "2019-03-03",
+        "jenis_kelamin": "L",
+        "nik": "3205200303190002",
+        "nisn": "3191015960",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 20,
+        "nama": "AGNA ZASKIA",
+        "tgl_lahir": "2019-08-20",
+        "jenis_kelamin": "P",
+        "nik": "3205206008190001",
+        "nisn": "3197632624",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 21,
+        "nama": "M RIFKI ABDUL ROJAK",
+        "tgl_lahir": "2020-02-02",
+        "jenis_kelamin": "L",
+        "nik": "3205200202200001",
+        "nisn": "3204316473",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 22,
+        "nama": "MULFI AZMI RAMADHAN",
+        "tgl_lahir": "2019-06-02",
+        "jenis_kelamin": "L",
+        "nik": "3205200206190007",
+        "nisn": "3190946084",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 23,
+        "nama": "TIARA SAPITRI",
+        "tgl_lahir": "2019-07-19",
+        "jenis_kelamin": "P",
+        "nik": "3205205907190001",
+        "nisn": "3190946971",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 24,
+        "nama": "FAYRA DZIKRA",
+        "tgl_lahir": "2019-01-29",
+        "jenis_kelamin": "P",
+        "nik": "3205106901190001",
+        "nisn": "3198878857",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 25,
+        "nama": "GHERIL SHIDQIA GHAZAL",
+        "tgl_lahir": "2019-06-14",
+        "jenis_kelamin": "L",
+        "nik": "3205201406190006",
+        "nisn": "3194298218",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 26,
+        "nama": "KANIA PEBIANA PUTRI",
+        "tgl_lahir": "2020-02-24",
+        "jenis_kelamin": "P",
+        "nik": "3205206402200001",
+        "nisn": "3203055387",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 27,
+        "nama": "NAFISA MUMTAZA FARID",
+        "tgl_lahir": "2020-06-23",
+        "jenis_kelamin": "P",
+        "nik": "3205406306200001",
+        "nisn": "3206729806",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 28,
+        "nama": "M. HAIKAL PRATAMA",
+        "tgl_lahir": "2019-08-20",
+        "jenis_kelamin": "L",
+        "nik": "3205202006190007",
+        "nisn": "",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 29,
+        "nama": "AKHTARIO ABRISAM",
+        "tgl_lahir": "2020-05-31",
+        "jenis_kelamin": "L",
+        "nik": "3205203105200004",
+        "nisn": "3206082790",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 30,
+        "nama": "MUHAMAD AZRIL PAUZAN",
+        "tgl_lahir": "2019-05-02",
+        "jenis_kelamin": "L",
+        "nik": "3205200205190001",
+        "nisn": "3194746062",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B1"
+    },
+    {
+        "no": 31,
+        "nama": "MUHAMMAD ASLAN ZAIDAN HIDAYAT",
+        "tgl_lahir": "2020-01-26",
+        "jenis_kelamin": "L",
+        "nik": "3205202601200001",
+        "nisn": "3207864920",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 32,
+        "nama": "FADHLAN SYAUQI MULTAZAM",
+        "tgl_lahir": "2019-12-30",
+        "jenis_kelamin": "L",
+        "nik": "3205203012190002",
+        "nisn": "3197852974",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 33,
+        "nama": "ALIF PRATAMA MUHAMMAD SAPUTRA",
+        "tgl_lahir": "2020-01-23",
+        "jenis_kelamin": "L",
+        "nik": "3205202301200002",
+        "nisn": "3207826625",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 34,
+        "nama": "CANTIKA KHALIZA",
+        "tgl_lahir": "2020-09-01",
+        "jenis_kelamin": "P",
+        "nik": "3205204109200002",
+        "nisn": "3207664606",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 35,
+        "nama": "DERIL MUHAMAD RAMADANSYAH",
+        "tgl_lahir": "2020-05-13",
+        "jenis_kelamin": "L",
+        "nik": "3205201305200002",
+        "nisn": "3208869422",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 36,
+        "nama": "NAUVAL MUHAMAD RIZKI",
+        "tgl_lahir": "2021-03-23",
+        "jenis_kelamin": "L",
+        "nik": "3205202303210001",
+        "nisn": "3211040577",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 37,
+        "nama": "MUHAMAD ALAWI YASIR",
+        "tgl_lahir": "2020-08-19",
+        "jenis_kelamin": "L",
+        "nik": "3205201908200002",
+        "nisn": "3203271073",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 38,
+        "nama": "ZIDAN MUHAMMAD AMRILLAH",
+        "tgl_lahir": "2020-09-20",
+        "jenis_kelamin": "L",
+        "nik": "3205202009200002",
+        "nisn": "3205793322",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 39,
+        "nama": "NAURA QIANZI AURELIA",
+        "tgl_lahir": "2020-07-31",
+        "jenis_kelamin": "P",
+        "nik": "3205207107200001",
+        "nisn": "3200424999",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 40,
+        "nama": "MIQDAD AL FATIH",
+        "tgl_lahir": "2020-09-23",
+        "jenis_kelamin": "L",
+        "nik": "3205202309200005",
+        "nisn": "3208501525",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 41,
+        "nama": "FARADILLAH ALMAHYRA",
+        "tgl_lahir": "2021-02-28",
+        "jenis_kelamin": "P",
+        "nik": "3205206802210001",
+        "nisn": "3217247755",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 42,
+        "nama": "WILDAN PADILAH",
+        "tgl_lahir": "2019-11-02",
+        "jenis_kelamin": "L",
+        "nik": "3205200211190002",
+        "nisn": "3197218554",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 43,
+        "nama": "MUHAMAD R FABIAN RAPAHSA",
+        "tgl_lahir": "2020-02-27",
+        "jenis_kelamin": "L",
+        "nik": "3205202702200003",
+        "nisn": "3205674843",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 44,
+        "nama": "ZIA ARSILA PUTRI",
+        "tgl_lahir": "2019-12-13",
+        "jenis_kelamin": "P",
+        "nik": "3205205312190004",
+        "nisn": "3196294310",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 45,
+        "nama": "ASYIFA AULIA NUR ROHMAN",
+        "tgl_lahir": "2020-01-30",
+        "jenis_kelamin": "P",
+        "nik": "3205207001200001",
+        "nisn": "3203241187",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 46,
+        "nama": "APRISYA NURI SHIAMI",
+        "tgl_lahir": "2021-04-13",
+        "jenis_kelamin": "P",
+        "nik": "3205205304210002",
+        "nisn": "3210584699",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 47,
+        "nama": "RIFQI ALFIANSYAH",
+        "tgl_lahir": "2019-06-19",
+        "jenis_kelamin": "L",
+        "nik": "3205201906190002",
+        "nisn": "3192271437",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 48,
+        "nama": "ADE MILDA NURAENI",
+        "tgl_lahir": "2019-06-27",
+        "jenis_kelamin": "P",
+        "nik": "3205176706190003",
+        "nisn": "3197201275",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 49,
+        "nama": "SYAKIRA HILYA DINIAH",
+        "tgl_lahir": "2019-03-20",
+        "jenis_kelamin": "P",
+        "nik": "3205206003190002",
+        "nisn": "3193001253",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 50,
+        "nama": "SANI ASLAN",
+        "tgl_lahir": "2019-06-10",
+        "jenis_kelamin": "L",
+        "nik": "3205201006190005",
+        "nisn": "3194434490",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 51,
+        "nama": "MUHAMAD IRSYAM",
+        "tgl_lahir": "2020-12-17",
+        "jenis_kelamin": "L",
+        "nik": "3205201712200002",
+        "nisn": "3200346806",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 52,
+        "nama": "NAZWA SAFANIYAH",
+        "tgl_lahir": "2020-10-10",
+        "jenis_kelamin": "P",
+        "nik": "3205205010200004",
+        "nisn": "3202740007",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 53,
+        "nama": "AIRA RUHIMA BUNGA AINURFATAH",
+        "tgl_lahir": "2020-02-11",
+        "jenis_kelamin": "P",
+        "nik": "3205205102200004",
+        "nisn": "3206365696",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 54,
+        "nama": "RAHMA AYU LESTARI",
+        "tgl_lahir": "2020-10-19",
+        "jenis_kelamin": "P",
+        "nik": "3204095910200003",
+        "nisn": "3203066847",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 55,
+        "nama": "RADITIA MUHAMAD SARIP HIDAYAT",
+        "tgl_lahir": "2019-04-03",
+        "jenis_kelamin": "L",
+        "nik": "3205200304190002",
+        "nisn": "3195923904",
+        "tingkat": "Kelompok B",
+        "rombel": "KELOMPOK B2"
+    },
+    {
+        "no": 56,
+        "nama": "ELMIRA NURCANDRA RAHAYU",
+        "tgl_lahir": "2020-10-12",
+        "jenis_kelamin": "P",
+        "nik": "3205205210200001",
+        "nisn": "3205786733",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 57,
+        "nama": "MUHAMAD ALIL RAMDHAN",
+        "tgl_lahir": "2020-05-08",
+        "jenis_kelamin": "L",
+        "nik": "3205200805200005",
+        "nisn": "3209343731",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    },
+    {
+        "no": 58,
+        "nama": "NAIMA ULFATUNISA",
+        "tgl_lahir": "2019-12-28",
+        "jenis_kelamin": "P",
+        "nik": "3205206812190002",
+        "nisn": "3195550898",
+        "tingkat": "Kelompok A",
+        "rombel": "KELOMPOK A"
+    }
+]

@@ -35,7 +35,7 @@ async function main() {
     where: { email: "admin@tk.com" },
     update: { password: hashedPassword },
     create: {
-      name: "Admin Al Islah",
+      name: "Admin Al Ishlah",
       email: "admin@tk.com",
       password: hashedPassword,
       role: "admin",

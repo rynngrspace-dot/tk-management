@@ -37,6 +37,8 @@ export async function PUT(request, { params }) {
         parentPhone: data.parentPhone !== undefined ? data.parentPhone : undefined,
         address: data.address !== undefined ? data.address : undefined,
         allergies: data.allergies !== undefined ? data.allergies : undefined,
+        nik: data.nik !== undefined ? data.nik : undefined,
+        nisn: data.nisn !== undefined ? data.nisn : undefined,
       },
       include: {
         class: true,

@@ -33,7 +33,7 @@ export default function MarketingLayout({ children }) {
         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center uppercase">
           <div className="flex items-center gap-8">
             <span className="flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-indigo-400" /> +62 (21) 1234-5678</span>
-            <span className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-indigo-400" /> info@tkalislah.sch.id</span>
+            <span className="flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-indigo-400" /> info@tkalishlah.sch.id</span>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="w-3.5 h-3.5 text-indigo-400" /> Jl. Pendidikan No. 123, Jakarta Timur
@@ -47,7 +47,7 @@ export default function MarketingLayout({ children }) {
           <Link href="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-indigo-700 rounded-lg flex items-center justify-center text-white font-bold text-xl">I</div>
             <div className="flex flex-col">
-              <span className="font-bold text-xl tracking-tight text-slate-900 leading-none uppercase">TK AL ISLAH</span>
+              <span className="font-bold text-xl tracking-tight text-slate-900 leading-none uppercase">TK AL ISHLAH</span>
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Islamic Kindergarten</span>
             </div>
           </Link>
@@ -81,7 +81,7 @@ export default function MarketingLayout({ children }) {
         <div className={`lg:hidden fixed inset-0 bg-white z-[60] transition-transform duration-500 ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
           <div className="p-8 h-full flex flex-col">
             <div className="flex justify-between items-center mb-16">
-              <span className="font-bold text-2xl text-indigo-700 uppercase">TK AL ISLAH</span>
+              <span className="font-bold text-2xl text-indigo-700 uppercase">TK AL ISHLAH</span>
               <button onClick={() => setIsMobileMenuOpen(false)}><X className="w-10 h-10 text-slate-400" /></button>
             </div>
             <nav className="flex flex-col gap-8">
@@ -110,7 +110,7 @@ export default function MarketingLayout({ children }) {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-10">
               <div className="w-10 h-10 bg-indigo-600 rounded flex items-center justify-center text-white font-bold text-xl">I</div>
-              <span className="font-bold text-2xl text-white uppercase tracking-tight">TK Al Islah</span>
+              <span className="font-bold text-2xl text-white uppercase tracking-tight">TK Al Ishlah</span>
             </div>
             <p className="max-w-md text-slate-500 leading-relaxed text-sm font-medium">
               Membangun generasi yang bertakwa, berakhlak mulia, cerdas, dan kreatif berlandaskan nilai-nilai Al-Qur'an dan Sunnah.
@@ -136,7 +136,7 @@ export default function MarketingLayout({ children }) {
         </div>
         
         <div className="max-w-7xl mx-auto px-6 mt-20 pt-10 border-t border-white/5 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-slate-600">
-          © {new Date().getFullYear()} TK Al Islah Jakarta. Seluruh Hak Cipta Dilindungi.
+          © {new Date().getFullYear()} TK Al Ishlah Jakarta. Seluruh Hak Cipta Dilindungi.
         </div>
       </footer>
     </div>

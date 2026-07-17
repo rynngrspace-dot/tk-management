@@ -74,7 +74,7 @@ export default function AdminDashboardPage() {
         <h2 className="text-2xl font-black tracking-tight text-slate-800 uppercase italic">Dashboard Admin</h2>
         <div className="flex items-center gap-2">
            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-           <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">Sistem Monitoring TK Al Islah</p>
+           <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">Sistem Monitoring TK Al Ishlah</p>
         </div>
       </div>
 

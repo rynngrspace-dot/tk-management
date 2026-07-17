@@ -21,16 +21,35 @@ export default function DashboardLayout({ children }) {
       return
     }
 
-    if (pathname.startsWith("/dashboard/admin") && userRole !== "admin") {
-      router.push("/login")
-    } else if (pathname.startsWith("/dashboard/teacher") && userRole !== "teacher") {
-      router.push("/login")
-    } else if (pathname.startsWith("/dashboard/parent") && userRole !== "parent") {
-      router.push("/login")
-    } else {
-      setRole(userRole)
-      setUserName(username || "Pengguna")
-    }
+    // Verify actual session from secure cookie
+    fetch("/api/auth/session")
+      .then((res) => {
+        if (res.status === 401) {
+          // Cookie expired or missing -> force logout
+          localStorage.removeItem("userRole")
+          localStorage.removeItem("userName")
+          router.push("/login")
+          return null
+        }
+        return res.json()
+      })
+      .then((data) => {
+        if (!data) return
+
+        if (pathname.startsWith("/dashboard/admin") && userRole !== "admin") {
+          router.push("/login")
+        } else if (pathname.startsWith("/dashboard/teacher") && userRole !== "teacher") {
+          router.push("/login")
+        } else if (pathname.startsWith("/dashboard/parent") && userRole !== "parent") {
+          router.push("/login")
+        } else {
+          setRole(userRole)
+          setUserName(username || "Pengguna")
+        }
+      })
+      .catch((err) => {
+        console.error("Session verification failed:", err)
+      })
   }, [pathname, router])
 
   // Close mobile sidebar on route change

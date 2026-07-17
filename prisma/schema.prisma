@@ -43,6 +43,8 @@ model Student {
   gender         String?
   parentName     String?
   parentPhone    String?
+  nik            String?
+  nisn           String?
   sawResults     SawResult[]
   class          Class            @relation(fields: [classId], references: [id])
   parents        User[]           @relation("StudentParents")

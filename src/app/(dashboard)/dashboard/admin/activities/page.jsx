@@ -89,7 +89,7 @@ export default function AdminActivitiesPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-black text-slate-800 uppercase italic">Log Aktivitas Sistem</h1>
-            <p className="text-sm text-slate-500 font-medium">Rekaman seluruh perubahan data di TK Al Islah</p>
+            <p className="text-sm text-slate-500 font-medium">Rekaman seluruh perubahan data di TK Al Ishlah</p>
           </div>
         </div>
         

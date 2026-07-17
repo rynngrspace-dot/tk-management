@@ -19,7 +19,8 @@ export default function AdminNewStudentPage() {
   const [formData, setFormData] = useState({
     name: "", nis: "", classId: "",
     gender: "", dateOfBirth: "", parentName: "", parentPhone: "", address: "", allergies: "",
-    parentEmail: "", createParentAccount: true
+    parentEmail: "", createParentAccount: true,
+    nik: "", nisn: ""
   })
 
   useEffect(() => {
@@ -160,6 +161,27 @@ export default function AdminNewStudentPage() {
                   className="rounded-xl h-11 bg-white border-slate-200" 
                   required
                 />
+              </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium text-slate-500 uppercase tracking-wider">NIK (Nomor Induk Kependudukan)</Label>
+                  <Input 
+                    value={formData.nik} 
+                    onChange={e => setFormData({...formData, nik: e.target.value})} 
+                    placeholder="Masukkan 16 digit NIK" 
+                    className="rounded-xl h-11 bg-white border-slate-200" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium text-slate-500 uppercase tracking-wider">NISN</Label>
+                  <Input 
+                    value={formData.nisn} 
+                    onChange={e => setFormData({...formData, nisn: e.target.value})} 
+                    placeholder="Masukkan 10 digit NISN" 
+                    className="rounded-xl h-11 bg-white border-slate-200" 
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

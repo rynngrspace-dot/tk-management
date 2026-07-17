@@ -86,6 +86,8 @@ export async function POST(request) {
         parentPhone: data.parentPhone || null,
         address: data.address || null,
         allergies: data.allergies || null,
+        nik: data.nik || null,
+        nisn: data.nisn || null,
       },
       include: {
         class: true,

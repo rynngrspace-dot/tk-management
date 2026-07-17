@@ -54,7 +54,7 @@ export default function LandingPage() {
             </p>
             <div className="flex items-center gap-4">
               <div className="w-16 h-[2px] bg-indigo-700"></div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Prinsip TK Al Islah</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Prinsip TK Al Ishlah</p>
             </div>
           </div>
         </div>

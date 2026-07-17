@@ -88,7 +88,12 @@ export function Sidebar({ role, collapsed, mobileOpen, onCloseMobile }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (err) {
+      console.error("Logout request failed:", err);
+    }
     localStorage.removeItem("userRole");
     localStorage.removeItem("userName");
     router.push("/login");

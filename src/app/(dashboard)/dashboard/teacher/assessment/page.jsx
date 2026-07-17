@@ -239,7 +239,8 @@ export default function AssessmentPage() {
             <table className="w-full text-left text-sm text-slate-600">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-800">
                 <tr>
-                  <th className="px-6 py-4 font-semibold whitespace-nowrap sticky left-0 bg-slate-50 z-20 shadow-[1px_0_0_#e2e8f0]">Nama Siswa</th>
+                  <th className="px-4 py-4 font-semibold text-center w-12 sticky left-0 bg-slate-50 z-20 whitespace-nowrap">No</th>
+                  <th className="px-6 py-4 font-semibold whitespace-nowrap sticky left-12 bg-slate-50 z-20 shadow-[1px_0_0_#e2e8f0]">Nama Siswa</th>
                   {criteria.map(c => (
                     <th key={c.id} className="px-4 py-4 font-semibold text-center min-w-[140px]" title={c.name}>
                       <div className="text-slate-700">{c.code}</div>
@@ -250,9 +251,12 @@ export default function AssessmentPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {students.map((student) => (
+                {students.map((student, index) => (
                   <tr key={student.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-medium text-slate-900 sticky left-0 bg-white shadow-[1px_0_0_#e2e8f0] z-10 whitespace-nowrap">
+                    <td className="px-4 py-4 text-center font-medium text-slate-400 sticky left-0 bg-white z-10 w-12 whitespace-nowrap">
+                      {index + 1}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-slate-900 sticky left-12 bg-white shadow-[1px_0_0_#e2e8f0] z-10 whitespace-nowrap">
                       {student.name}
                     </td>
                     {criteria.map(c => {
@@ -292,7 +296,7 @@ export default function AssessmentPage() {
                 ))}
                 {students.length === 0 && !isLoading && (
                   <tr>
-                    <td colSpan={criteria.length + 2} className="px-6 py-8 text-center text-slate-500">
+                    <td colSpan={criteria.length + 3} className="px-6 py-8 text-center text-slate-500">
                       Tidak ada siswa di kelas ini.
                     </td>
                   </tr>

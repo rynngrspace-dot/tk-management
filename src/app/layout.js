@@ -9,8 +9,8 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  title: "TK Al Islah - Management System",
-  description: "Aplikasi Manajemen Tumbuh Kembang Anak untuk TK Al Islah",
+  title: "TK Al Ishlah - Management System",
+  description: "Aplikasi Manajemen Tumbuh Kembang Anak untuk TK Al Ishlah",
 };
 
 export default function RootLayout({ children }) {

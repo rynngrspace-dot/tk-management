@@ -21,7 +21,8 @@ export default function AdminEditStudentPage({ params }) {
   const [formData, setFormData] = useState({
     name: "", nis: "", classId: "",
     gender: "", dateOfBirth: "", parentName: "", parentPhone: "", address: "", allergies: "",
-    parentEmail: "", parentPassword: "", createParentAccount: false
+    parentEmail: "", parentPassword: "", createParentAccount: false,
+    nik: "", nisn: ""
   })
 
   useEffect(() => {
@@ -59,7 +60,9 @@ export default function AdminEditStudentPage({ params }) {
           allergies: myStudent.allergies || "",
           parentEmail: linkedParent ? linkedParent.email : "",
           parentPassword: "",
-          createParentAccount: linkedParent ? true : false
+          createParentAccount: linkedParent ? true : false,
+          nik: myStudent.nik || "",
+          nisn: myStudent.nisn || ""
         })
 
       } catch (error) {
@@ -194,6 +197,27 @@ export default function AdminEditStudentPage({ params }) {
                   className="rounded-xl h-11 bg-white border-slate-200" 
                   required
                 />
+              </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium text-slate-500 uppercase tracking-wider">NIK (Nomor Induk Kependudukan)</Label>
+                  <Input 
+                    value={formData.nik} 
+                    onChange={e => setFormData({...formData, nik: e.target.value})} 
+                    placeholder="Masukkan 16 digit NIK" 
+                    className="rounded-xl h-11 bg-white border-slate-200" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium text-slate-500 uppercase tracking-wider">NISN</Label>
+                  <Input 
+                    value={formData.nisn} 
+                    onChange={e => setFormData({...formData, nisn: e.target.value})} 
+                    placeholder="Masukkan 10 digit NISN" 
+                    className="rounded-xl h-11 bg-white border-slate-200" 
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

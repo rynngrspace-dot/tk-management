@@ -9,7 +9,7 @@ export default function AboutPage() {
       <section className="bg-slate-50 py-24 md:py-40 border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <h1 className="text-5xl md:text-8xl font-bold text-slate-900 uppercase tracking-tighter mb-6">Profil Sekolah</h1>
-          <p className="text-xl text-slate-500 font-medium max-w-2xl leading-relaxed">Mengenal lebih dalam sejarah, visi, dan misi TK Al Islah dalam mendidik generasi masa depan yang bertaqwa.</p>
+          <p className="text-xl text-slate-500 font-medium max-w-2xl leading-relaxed">Mengenal lebih dalam sejarah, visi, dan misi TK Al Ishlah dalam mendidik generasi masa depan yang bertaqwa.</p>
         </div>
       </section>
 
@@ -23,11 +23,11 @@ export default function AboutPage() {
             <h2 className="text-[10px] font-bold text-indigo-600 uppercase tracking-[0.4em] mb-6">Sambutan Kepala Sekolah</h2>
             <h3 className="text-3xl md:text-4xl font-bold text-slate-900 mb-8 uppercase tracking-tight italic">"Membangun Karakter Adalah Prioritas Utama Kami."</h3>
             <p className="text-slate-600 leading-relaxed mb-8 font-medium">
-              Assalamu'alaikum Warahmatullahi Wabarakatuh. Selamat datang di TK Al Islah. Kami percaya bahwa pendidikan anak usia dini adalah masa keemasan yang harus diisi dengan kasih sayang dan stimulasi yang tepat. Di sini, kami tidak hanya fokus pada kecerdasan kognitif, tetapi juga pembentukan akhlak yang mulia.
+              Assalamu'alaikum Warahmatullahi Wabarakatuh. Selamat datang di TK Al Ishlah. Kami percaya bahwa pendidikan anak usia dini adalah masa keemasan yang harus diisi dengan kasih sayang dan stimulasi yang tepat. Di sini, kami tidak hanya focus pada kecerdasan kognitif, tetapi juga pembentukan akhlak yang mulia.
             </p>
             <div className="pt-10 border-t border-slate-100">
                <p className="font-bold text-slate-900 text-lg uppercase tracking-tight">Hj. Siti Aminah, S.Pd.I</p>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Kepala Sekolah TK Al Islah</p>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Kepala Sekolah TK Al Ishlah</p>
             </div>
           </div>
         </div>
